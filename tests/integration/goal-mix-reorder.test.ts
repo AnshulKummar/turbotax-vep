@@ -6,7 +6,7 @@
  * engine is merged.
  */
 
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { mitchell_return } from "@/data/mitchell-return";
 import type { CustomerContext, Goal, Recommendation } from "@/contracts";
@@ -16,11 +16,15 @@ import {
   type LoadedModules,
 } from "./_load-modules";
 
-let mods: LoadedModules = { all_loaded: false, skip_reason: "uninitialized" };
-
-beforeAll(async () => {
-  mods = await load_cross_slice_modules();
-});
+// Top-level await: load modules at file-collection time so the it.skipIf
+// flag is correct when describe() runs. (beforeAll fires too late.)
+const mods: LoadedModules = await load_cross_slice_modules();
+if (!mods.all_loaded) {
+  // eslint-disable-next-line no-console
+  console.log(
+    `[goal-mix-reorder.test.ts] skipping: ${mods.skip_reason}. Tests will run post-merge.`,
+  );
+}
 
 function base_context(goals: Goal[]): CustomerContext {
   return {
@@ -91,16 +95,18 @@ describe("T-601 goal mix changes recommendation ranking", () => {
     "refund-heavy goals produce a different top-5 than audit-heavy goals",
     async () => {
       const engine = mods.engine!;
-      const refund_recs = await engine.produce_recommendations(
-        mitchell_return,
-        REFUND_HEAVY,
-        base_context(REFUND_HEAVY),
-      );
-      const audit_recs = await engine.produce_recommendations(
-        mitchell_return,
-        AUDIT_HEAVY,
-        base_context(AUDIT_HEAVY),
-      );
+      const { recommendations: refund_recs } =
+        await engine.produce_recommendations(
+          mitchell_return,
+          REFUND_HEAVY,
+          base_context(REFUND_HEAVY),
+        );
+      const { recommendations: audit_recs } =
+        await engine.produce_recommendations(
+          mitchell_return,
+          AUDIT_HEAVY,
+          base_context(AUDIT_HEAVY),
+        );
 
       expect(refund_recs.length).toBeGreaterThan(0);
       expect(audit_recs.length).toBeGreaterThan(0);
@@ -112,7 +118,7 @@ describe("T-601 goal mix changes recommendation ranking", () => {
     "every recommendation carries per-goal fit scores in [0,1]",
     async () => {
       const engine = mods.engine!;
-      const recs = await engine.produce_recommendations(
+      const { recommendations: recs } = await engine.produce_recommendations(
         mitchell_return,
         REFUND_HEAVY,
         base_context(REFUND_HEAVY),

@@ -21,7 +21,7 @@
  * run for real.
  */
 
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { mitchell_return } from "@/data/mitchell-return";
 import goldenRecommendations from "@/data/golden-recommendations.json";
@@ -37,17 +37,15 @@ import {
   type LoadedModules,
 } from "./_load-modules";
 
-let mods: LoadedModules = { all_loaded: false, skip_reason: "uninitialized" };
-
-beforeAll(async () => {
-  mods = await load_cross_slice_modules();
-  if (!mods.all_loaded) {
-    // eslint-disable-next-line no-console
-    console.log(
-      `[end-to-end.test.ts] skipping: ${mods.skip_reason}. Tests will run post-merge.`,
-    );
-  }
-});
+// Top-level await: load modules at file-collection time so the it.skipIf
+// flag is correct when describe() runs. (beforeAll fires too late.)
+const mods: LoadedModules = await load_cross_slice_modules();
+if (!mods.all_loaded) {
+  // eslint-disable-next-line no-console
+  console.log(
+    `[end-to-end.test.ts] skipping: ${mods.skip_reason}. Tests will run post-merge.`,
+  );
+}
 
 function mitchell_goals(): Goal[] {
   return [
@@ -94,7 +92,11 @@ async function run_prework(): Promise<PreWorkOutput> {
   if (typeof entry !== "function") {
     throw new Error("prework module exported no callable entrypoint");
   }
-  return entry(mitchell_return, mitchell_return.prior_year);
+  // Agent 3's run_prework requires the rule findings as the second arg
+  // (so the prework layer doesn't depend directly on the rules engine).
+  const { evaluate_all } = await import("@/lib/rules");
+  const findings = evaluate_all(mitchell_return);
+  return entry(mitchell_return, findings, mitchell_return.prior_year);
 }
 
 describe("T-601 end-to-end Mitchell flow", () => {
@@ -122,7 +124,7 @@ describe("T-601 end-to-end Mitchell flow", () => {
     "step 4: recommendation engine surfaces every must_appear golden rec",
     async () => {
       const engine = mods.engine!;
-      const recs = await engine.produce_recommendations(
+      const { recommendations: recs } = await engine.produce_recommendations(
         mitchell_return,
         mitchell_goals(),
         mitchell_context(),
@@ -156,12 +158,12 @@ describe("T-601 end-to-end Mitchell flow", () => {
     async () => {
       const engine = mods.engine!;
       const audit = mods.audit!;
-      const recs = await engine.produce_recommendations(
+      const { recommendations: recs } = await engine.produce_recommendations(
         mitchell_return,
         mitchell_goals(),
         mitchell_context(),
       );
-      const rsu_rec = recs.find((r) => r.rule_id === "rsu-double-count-001");
+      const rsu_rec = recs.find((r: Recommendation) => r.rule_id === "rsu-double-count-001");
       expect(rsu_rec).toBeDefined();
 
       await audit.capture_expert_action(

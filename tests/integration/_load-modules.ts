@@ -22,6 +22,7 @@ import type {
   PreWorkOutput,
   PriorYearSnapshot,
   Recommendation,
+  RuleFinding,
   TaxReturn,
 } from "@/contracts";
 
@@ -36,23 +37,29 @@ export interface RecommendationEngineModule {
     return_data: TaxReturn,
     goals: Goal[],
     customer_context: CustomerContext,
-  ) => Promise<Recommendation[]>;
+  ) => Promise<{ recommendations: Recommendation[]; audit_id: number }>;
 }
 
 export interface PreworkModule {
-  // Either of these shapes is fine — the integration test adapts.
+  // Agent 3 ships a synchronous run_prework that takes rule findings as
+  // the second argument so the prework layer does not depend directly on
+  // the rules engine. The integration test passes that in explicitly.
+  // Build/default kept as fallbacks in case future variants emerge.
   run_prework?: (
     return_data: TaxReturn,
+    rule_findings: RuleFinding[],
     prior_return?: PriorYearSnapshot,
-  ) => Promise<PreWorkOutput>;
+  ) => PreWorkOutput | Promise<PreWorkOutput>;
   build_prework?: (
     return_data: TaxReturn,
+    rule_findings: RuleFinding[],
     prior_return?: PriorYearSnapshot,
-  ) => Promise<PreWorkOutput>;
+  ) => PreWorkOutput | Promise<PreWorkOutput>;
   default?: (
     return_data: TaxReturn,
+    rule_findings: RuleFinding[],
     prior_return?: PriorYearSnapshot,
-  ) => Promise<PreWorkOutput>;
+  ) => PreWorkOutput | Promise<PreWorkOutput>;
 }
 
 export interface AuditCaptureModule {
@@ -102,8 +109,8 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
       return result;
     }
     result.goals = mod;
-  } catch {
-    result.skip_reason = "Agent 2 goals/intake module not yet merged";
+  } catch (e) {
+    result.skip_reason = `Agent 2 goals/intake module not yet merged: ${(e as Error).message}`;
     return result;
   }
 
@@ -118,14 +125,15 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
       return result;
     }
     result.engine = mod;
-  } catch {
-    result.skip_reason = "Agent 2 recommendations/engine module not yet merged";
+  } catch (e) {
+    result.skip_reason = `Agent 2 recommendations/engine module not yet merged: ${(e as Error).message}`;
     return result;
   }
 
   // Pre-work engine (Agent 3) — try the public module path first, fall back
   // to the route handler location.
   let prework_mod: PreworkModule | undefined;
+  const prework_errors: string[] = [];
   for (const path of [
     "@/lib/prework",
     "@/lib/prework/index",
@@ -134,12 +142,12 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
     try {
       prework_mod = (await dynamic_import(path)) as PreworkModule;
       break;
-    } catch {
-      // try next candidate
+    } catch (e) {
+      prework_errors.push(`${path}: ${(e as Error).message}`);
     }
   }
   if (!prework_mod) {
-    result.skip_reason = "Agent 3 prework module not yet merged";
+    result.skip_reason = `Agent 3 prework module not yet merged: ${prework_errors.join(" | ")}`;
     return result;
   }
   result.prework = prework_mod;
@@ -162,8 +170,8 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
       // treat stub as acceptable for the pure in-memory round-trip tests.
     }
     result.audit = mod;
-  } catch {
-    result.skip_reason = "Agent 5 audit/capture module not yet merged";
+  } catch (e) {
+    result.skip_reason = `Agent 5 audit/capture module not yet merged: ${(e as Error).message}`;
     return result;
   }
 
@@ -177,8 +185,8 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
       return result;
     }
     result.pii = mod;
-  } catch {
-    result.skip_reason = "Agent 5 pii/redact module not yet merged";
+  } catch (e) {
+    result.skip_reason = `Agent 5 pii/redact module not yet merged: ${(e as Error).message}`;
     return result;
   }
 
