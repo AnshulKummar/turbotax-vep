@@ -1,0 +1,13 @@
+{
+  "return_id": "cal-003",
+  "case_id": "case-cal-003",
+  "label": "Rental + depreciation + passive activity",
+  "findings": [
+    { "finding_id": "f-1", "rule_id": "depreciation-land-split-001", "predicted_confidence": 0.97, "is_correct": true },
+    { "finding_id": "f-2", "rule_id": "passive-469-agi-phaseout-001", "predicted_confidence": 0.81, "is_correct": true },
+    { "finding_id": "f-3", "rule_id": "rental-qbi-check-001", "predicted_confidence": 0.66, "is_correct": true },
+    { "finding_id": "f-4", "rule_id": "section-121-home-sale-001", "predicted_confidence": 0.51, "is_correct": true },
+    { "finding_id": "f-5", "rule_id": "ptet-election-il-001", "predicted_confidence": 0.42, "is_correct": false },
+    { "finding_id": "f-6", "rule_id": "foreign-tax-credit-001", "predicted_confidence": 0.18, "is_correct": false }
+  ]
+}

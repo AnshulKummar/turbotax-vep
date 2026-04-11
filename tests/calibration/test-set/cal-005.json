@@ -1,0 +1,14 @@
+{
+  "return_id": "cal-005",
+  "case_id": "case-cal-005",
+  "label": "HSA + dependent care credit edge cases",
+  "findings": [
+    { "finding_id": "f-1", "rule_id": "hsa-8889-reconcile-001", "predicted_confidence": 0.93, "is_correct": true },
+    { "finding_id": "f-2", "rule_id": "hsa-family-limit-001", "predicted_confidence": 0.85, "is_correct": true },
+    { "finding_id": "f-3", "rule_id": "credit-dep-care-001", "predicted_confidence": 0.69, "is_correct": true },
+    { "finding_id": "f-4", "rule_id": "credit-eitc-phaseout-001", "predicted_confidence": 0.53, "is_correct": true },
+    { "finding_id": "f-5", "rule_id": "estimated-tax-safe-harbor-001", "predicted_confidence": 0.39, "is_correct": false },
+    { "finding_id": "f-6", "rule_id": "retirement-ira-headroom-001", "predicted_confidence": 0.24, "is_correct": false },
+    { "finding_id": "f-7", "rule_id": "credit-eligibility-005", "predicted_confidence": 0.09, "is_correct": false }
+  ]
+}
