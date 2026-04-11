@@ -43,3 +43,5 @@ PRD_v0.*.md
 *-private*
 *-with-review-notes*
 interview-notes*
+tsconfig.tsbuildinfo
+package-lock.json
