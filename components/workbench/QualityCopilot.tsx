@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { LineId } from "../../src/contracts";
 import { Panel } from "./Panel";
 
@@ -17,6 +17,45 @@ interface CopilotWarning {
   detail: string;
 }
 
+function compute_warnings(
+  lastEdit: { lineId: LineId; value: string } | null,
+): CopilotWarning[] {
+  if (!lastEdit) return [];
+  const { lineId, value } = lastEdit;
+  const next: CopilotWarning[] = [];
+
+  if (lineId.startsWith("1040.line.7") || lineId.startsWith("8949")) {
+    next.push({
+      id: `wash-${lineId}`,
+      severity: "error",
+      title: "Wash-sale lot mismatch",
+      detail:
+        "You edited a 1099-B line but three lots still have wash_sale_loss_disallowed > 0 and code = null. Apply Code W to rows WASH-001..003 before accepting.",
+    });
+  }
+
+  const num = Number(value.replace(/[^0-9.-]/g, ""));
+  if (!Number.isNaN(num) && num < 0 && lineId.startsWith("1040")) {
+    next.push({
+      id: `neg-${lineId}`,
+      severity: "warn",
+      title: "Negative income line",
+      detail: `You set ${lineId} to a negative value. Confirm this is a loss and not a sign-flip typo.`,
+    });
+  }
+
+  if (next.length === 0) {
+    next.push({
+      id: `ok-${lineId}`,
+      severity: "info",
+      title: "No issues detected",
+      detail: `Edit on ${lineId} looks consistent with other lines.`,
+    });
+  }
+
+  return next;
+}
+
 /**
  * Live Quality Co-pilot.
  *
@@ -25,52 +64,22 @@ interface CopilotWarning {
  * edits a 1099-B / 1040.line.7 field — no real LLM call required.
  */
 export function QualityCopilot({ lastEdit }: QualityCopilotProps) {
-  const [warnings, setWarnings] = useState<CopilotWarning[]>([]);
-  const [flashing, setFlashing] = useState(false);
+  const warnings = useMemo(() => compute_warnings(lastEdit), [lastEdit]);
+  const hasError = warnings.some((w) => w.severity === "error");
+  const [flashClearedAt, setFlashClearedAt] = useState<number | null>(null);
+  // Flashing is derived: an error edit ID is flashing until the timer
+  // marks it cleared. setState only happens inside the timer callback, not
+  // synchronously in the effect, which keeps React 19's effect rule happy.
+  const flashKey = hasError ? (lastEdit?.lineId ?? null) : null;
+  const flashing = flashKey !== null && flashClearedAt !== flashKey?.length;
 
   useEffect(() => {
-    if (!lastEdit) return;
-    const { lineId, value } = lastEdit;
-
-    const next: CopilotWarning[] = [];
-
-    if (
-      lineId.startsWith("1040.line.7") ||
-      lineId.startsWith("8949")
-    ) {
-      next.push({
-        id: `wash-${Date.now()}`,
-        severity: "error",
-        title: "Wash-sale lot mismatch",
-        detail:
-          "You edited a 1099-B line but three lots still have wash_sale_loss_disallowed > 0 and code = null. Apply Code W to rows WASH-001..003 before accepting.",
-      });
-    }
-
-    const num = Number(value.replace(/[^0-9.-]/g, ""));
-    if (!Number.isNaN(num) && num < 0 && lineId.startsWith("1040")) {
-      next.push({
-        id: `neg-${Date.now()}`,
-        severity: "warn",
-        title: "Negative income line",
-        detail: `You set ${lineId} to a negative value. Confirm this is a loss and not a sign-flip typo.`,
-      });
-    }
-
-    if (next.length === 0) {
-      next.push({
-        id: `ok-${Date.now()}`,
-        severity: "info",
-        title: "No issues detected",
-        detail: `Edit on ${lineId} looks consistent with other lines.`,
-      });
-    }
-
-    setWarnings(next);
-    setFlashing(next.some((w) => w.severity === "error"));
-    const t = window.setTimeout(() => setFlashing(false), 3000);
+    if (!hasError) return;
+    const t = window.setTimeout(() => {
+      setFlashClearedAt(flashKey?.length ?? null);
+    }, 3000);
     return () => window.clearTimeout(t);
-  }, [lastEdit]);
+  }, [hasError, flashKey]);
 
   return (
     <Panel

@@ -164,7 +164,7 @@ export async function load_cross_slice_modules(): Promise<LoadedModules> {
     }
     // Heuristic: if the function source contains the stub marker comment,
     // we skip. The real impl won't have that string at function scope.
-    const src = (mod.query_audit_trail as Function).toString();
+    const src = (mod.query_audit_trail as (...args: unknown[]) => unknown).toString();
     if (src.includes(AUDIT_STUB_MARKER)) {
       // The real query won't ship a stub marker. Don't gate on this today —
       // treat stub as acceptable for the pure in-memory round-trip tests.
