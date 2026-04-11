@@ -1,0 +1,203 @@
+{
+  "case_id": "test-return-010",
+  "params": {
+    "index": 10,
+    "filing_status": "mfs",
+    "income_tier": "upper",
+    "wage_profile": "w2_plus_1099",
+    "state_mix": "ny_nj",
+    "has_rental": false,
+    "has_k1": false,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": false,
+    "has_iso": false,
+    "has_foreign": true,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "amt-ftc-004",
+    "estimated-tax-safe-harbor-90-002",
+    "ftc-form-1116-required-001",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "retirement-roth-phaseout-002",
+    "rsu-double-count-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-rsu-double-count-001-TS10-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS10-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 6300,
+        "low": 5040,
+        "high": 7560
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-ftc-form-1116-required-001-global",
+      "rule_id": "ftc-form-1116-required-001",
+      "category": "foreign_tax_credit",
+      "severity": 3,
+      "irc_citation": "IRC §904(k)",
+      "pub_citation": "IRS Pub 514",
+      "summary": "Foreign tax $480 exceeds $300 — Form 1116 required",
+      "detail": "Foreign tax paid exceeds the election threshold for claiming the credit without Form 1116. Form 1116 is required and the credit may be limited.",
+      "affected_lines": [
+        "1040.line.1",
+        "1116"
+      ],
+      "dollar_impact": {
+        "estimate": 48,
+        "low": 24,
+        "high": 72
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-010",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Jordan has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Jordan is 43 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2450,
+        "low": 1960,
+        "high": 2940
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-sp-010",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Avery has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Avery is 43 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2450,
+        "low": 1960,
+        "high": 2940
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-roth-phaseout-002-global",
+      "rule_id": "retirement-roth-phaseout-002",
+      "category": "retirement_contribution",
+      "severity": 2,
+      "irc_citation": "IRC §408A(c)(3)",
+      "pub_citation": "Pub 590-A",
+      "summary": "AGI above Roth IRA phaseout — consider backdoor Roth",
+      "detail": "AGI $285,400 is above the single Roth IRA phaseout ceiling ($165,000). Direct Roth contributions are not allowed. Consider the backdoor Roth strategy (nondeductible traditional IRA contribution + Roth conversion) if there is no pre-tax IRA balance to trigger pro-rata.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 400,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-010",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Jordan: $9,500 of 401k/403b headroom",
+      "detail": "Jordan has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 3325,
+        "low": 2660,
+        "high": 3990
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-sp-010",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Avery: $17,500 of 401k/403b headroom",
+      "detail": "Avery has contributed $6,000 toward the TY2025 §402(g) limit of $23,500. Another $17,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 6125,
+        "low": 4900,
+        "high": 7350
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-amt-ftc-004-global",
+      "rule_id": "amt-ftc-004",
+      "category": "amt",
+      "severity": 2,
+      "irc_citation": "IRC §59(a)",
+      "pub_citation": "Pub 514",
+      "summary": "Compute AMT foreign tax credit separately on Form 1116",
+      "detail": "At high income with foreign tax paid, AMT requires a parallel Form 1116 using AMT sourcing rules under §59(a). The regular FTC and AMT FTC are often different.",
+      "affected_lines": [
+        "6251.line.8"
+      ],
+      "dollar_impact": {
+        "estimate": 150,
+        "low": 75,
+        "high": 225
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $46,235 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

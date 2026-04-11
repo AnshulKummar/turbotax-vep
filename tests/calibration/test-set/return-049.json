@@ -1,0 +1,186 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-049",
+  "filing_status": "hoh",
+  "taxpayer": {
+    "id": "person-tp-049",
+    "first_name": "Quinn",
+    "last_name": "Duval",
+    "ssn": "900-44-1343",
+    "dob": "1985-05-12",
+    "occupation": "Software Engineer"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-049",
+      "first_name": "Quinn",
+      "last_name": "Duval",
+      "ssn": "901-66-1376",
+      "dob": "2015-05-12"
+    }
+  ],
+  "address": {
+    "line1": "1049 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "CA",
+    "zip": "90049",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 49",
+      "employer_ein": "99-1000049",
+      "employee": {
+        "id": "person-tp-049",
+        "first_name": "Quinn",
+        "last_name": "Duval",
+        "ssn": "900-44-1343",
+        "dob": "1985-05-12",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 92000,
+      "box2_fed_withholding": 11040,
+      "box3_ss_wages": 92000,
+      "box4_ss_withholding": 5704,
+      "box5_medicare_wages": 92000,
+      "box6_medicare_withholding": 1334,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "CA",
+          "wages": 73600,
+          "withholding": 4600
+        },
+        {
+          "state": "WA",
+          "wages": 18400,
+          "withholding": 920
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000049",
+      "recipient": {
+        "id": "person-tp-049",
+        "first_name": "Quinn",
+        "last_name": "Duval",
+        "ssn": "900-44-1343",
+        "dob": "1985-05-12",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS49-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS49-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000049",
+      "recipient": {
+        "id": "person-tp-049",
+        "first_name": "Quinn",
+        "last_name": "Duval",
+        "ssn": "900-44-1343",
+        "dob": "1985-05-12",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [
+    {
+      "property_id": "rental-049",
+      "address": {
+        "line1": "2049 Rental Rd",
+        "city": "Rental City",
+        "state": "CA",
+        "zip": "90049",
+        "county": "Example"
+      },
+      "fair_rental_days": 365,
+      "personal_use_days": 0,
+      "related_party_rental": false,
+      "rents_received": 24000,
+      "expenses": {
+        "advertising": 0,
+        "auto_travel": 200,
+        "cleaning_maintenance": 900,
+        "commissions": 0,
+        "insurance": 1200,
+        "legal_professional": 200,
+        "management_fees": 2400,
+        "mortgage_interest": 11000,
+        "repairs": 1100,
+        "supplies": 250,
+        "taxes": 4200,
+        "utilities": 0,
+        "other": 0
+      },
+      "depreciation": {
+        "purchase_price": 285000,
+        "placed_in_service": "2021-05-01",
+        "depreciation_method": "MACRS_27.5",
+        "prior_year_depreciation": 41400,
+        "current_year_depreciation": 10364
+      }
+    }
+  ],
+  "hsa": [],
+  "state_returns": [
+    {
+      "state": "CA",
+      "residency": "resident",
+      "state_wages": 73600,
+      "state_withholding": 4600,
+      "ptet_election_eligible": false
+    },
+    {
+      "state": "WA",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 18400,
+      "state_withholding": 920,
+      "ptet_election_eligible": false
+    }
+  ],
+  "agi": 92900,
+  "total_tax": 16722
+}

@@ -1,0 +1,142 @@
+{
+  "case_id": "test-return-048",
+  "params": {
+    "index": 48,
+    "filing_status": "mfs",
+    "income_tier": "low",
+    "wage_profile": "w2_only",
+    "state_mix": "ca_wa",
+    "has_rental": false,
+    "has_k1": false,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": false,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "estimated-tax-safe-harbor-90-002",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "rsu-double-count-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-rsu-double-count-001-TS48-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS48-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 4320,
+        "low": 3456,
+        "high": 5184
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-048",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Harper has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Harper is 41 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1680,
+        "low": 1344,
+        "high": 2016
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-sp-048",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Parker has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Parker is 41 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1680,
+        "low": 1344,
+        "high": 2016
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-048",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Harper: $9,500 of 401k/403b headroom",
+      "detail": "Harper has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 2280,
+        "low": 1824,
+        "high": 2736
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-sp-048",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Parker: $17,500 of 401k/403b headroom",
+      "detail": "Parker has contributed $6,000 toward the TY2025 §402(g) limit of $23,500. Another $17,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 4200,
+        "low": 3360,
+        "high": 5040
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $17,642 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

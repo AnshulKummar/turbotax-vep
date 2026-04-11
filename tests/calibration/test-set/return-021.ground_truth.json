@@ -1,0 +1,124 @@
+{
+  "case_id": "test-return-021",
+  "params": {
+    "index": 21,
+    "filing_status": "hoh",
+    "income_tier": "mid",
+    "wage_profile": "w2_only",
+    "state_mix": "single_tx",
+    "has_rental": false,
+    "has_k1": false,
+    "has_rsu": false,
+    "has_hsa": false,
+    "has_wash_sale": false,
+    "has_iso": true,
+    "has_foreign": false,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "credit-ctc-001",
+    "credit-dependent-care-005",
+    "estimated-tax-safe-harbor-90-002",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-021",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Morgan has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Morgan is 41 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1540,
+        "low": 1232,
+        "high": 1848
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-021",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Morgan: $9,500 of 401k/403b headroom",
+      "detail": "Morgan has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 2090,
+        "low": 1672,
+        "high": 2508
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-ctc-001-global",
+      "rule_id": "credit-ctc-001",
+      "category": "credit_eligibility",
+      "severity": 3,
+      "irc_citation": "IRC §24",
+      "pub_citation": "Pub 972",
+      "summary": "CTC: 1 × $2,000 = $2,000",
+      "detail": "1 qualifying child/ren under age 17. AGI is below the phaseout start, so the full $2,000 per child is available.",
+      "affected_lines": [
+        "1040.line.19"
+      ],
+      "dollar_impact": {
+        "estimate": 2000,
+        "low": 1600,
+        "high": 2400
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-dependent-care-005-global",
+      "rule_id": "credit-dependent-care-005",
+      "category": "credit_eligibility",
+      "severity": 2,
+      "irc_citation": "IRC §21",
+      "pub_citation": "Pub 503",
+      "summary": "Dependent care credit available (20% at high AGI)",
+      "detail": "Up to $3,000 of qualified dependent-care expenses can support the credit, though at AGI > $43K the rate is 20%. Requires both spouses to have earned income in MFJ.",
+      "affected_lines": [
+        "2441",
+        "1040.sch3.line.6"
+      ],
+      "dollar_impact": {
+        "estimate": 600,
+        "low": 420,
+        "high": 780
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $15,293 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

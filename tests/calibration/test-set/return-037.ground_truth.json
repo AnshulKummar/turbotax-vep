@@ -1,0 +1,104 @@
+{
+  "case_id": "test-return-037",
+  "params": {
+    "index": 37,
+    "filing_status": "single",
+    "income_tier": "mid",
+    "wage_profile": "w2_plus_1099",
+    "state_mix": "single_tx",
+    "has_rental": false,
+    "has_k1": false,
+    "has_rsu": false,
+    "has_hsa": false,
+    "has_wash_sale": true,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "estimated-tax-safe-harbor-90-002",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "wash-sale-code-w-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-wash-sale-code-w-001-TS37-WASH-001_TS37-WASH-002",
+      "rule_id": "wash-sale-code-w-001",
+      "category": "wash_sale",
+      "severity": 4,
+      "irc_citation": "IRC §1091",
+      "pub_citation": "IRS Pub 550",
+      "summary": "2 1099-B lot(s) missing Code W on Form 8949 (disallowed loss $3,030)",
+      "detail": "The broker reported a wash sale loss disallowed amount on these lots, but Form 8949 column (f) does not carry Code W and column (g) does not add the disallowance back. IRC §1091 requires the disallowed loss to be tracked and added to the replacement-lot basis. This is a mechanical compliance error that routinely triggers IRS CP2000 notices because the IRS wash-sale computer match sees the broker-reported amount and expects it on the return.",
+      "affected_lines": [
+        "8949.row.TS37-WASH-001",
+        "8949.row.TS37-WASH-002"
+      ],
+      "dollar_impact": {
+        "estimate": 758,
+        "low": 455,
+        "high": 1061
+      },
+      "audit_risk_delta": 0.35
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-037",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Avery has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Avery is 43 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1540,
+        "low": 1232,
+        "high": 1848
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-037",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Avery: $9,500 of 401k/403b headroom",
+      "detail": "Avery has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 2090,
+        "low": 1672,
+        "high": 2508
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $15,293 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

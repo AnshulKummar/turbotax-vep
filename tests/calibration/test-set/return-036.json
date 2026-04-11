@@ -1,0 +1,179 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-036",
+  "filing_status": "hoh",
+  "taxpayer": {
+    "id": "person-tp-036",
+    "first_name": "Reese",
+    "last_name": "Silva",
+    "ssn": "900-44-1252",
+    "dob": "1981-01-15",
+    "occupation": "Software Engineer"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-036",
+      "first_name": "Reese",
+      "last_name": "Silva",
+      "ssn": "901-66-1285",
+      "dob": "2011-01-15"
+    }
+  ],
+  "address": {
+    "line1": "1036 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "NY",
+    "zip": "90036",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 36",
+      "employer_ein": "99-1000036",
+      "employee": {
+        "id": "person-tp-036",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1252",
+        "dob": "1981-01-15",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 38500,
+      "box2_fed_withholding": 4620,
+      "box3_ss_wages": 38500,
+      "box4_ss_withholding": 2387,
+      "box5_medicare_wages": 38500,
+      "box6_medicare_withholding": 558,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "NY",
+          "wages": 30800,
+          "withholding": 1925
+        },
+        {
+          "state": "NJ",
+          "wages": 7700,
+          "withholding": 385
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000036",
+      "recipient": {
+        "id": "person-tp-036",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1252",
+        "dob": "1981-01-15",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS36-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS36-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000036",
+      "recipient": {
+        "id": "person-tp-036",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1252",
+        "dob": "1981-01-15",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 480
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [
+    {
+      "account_holder": {
+        "id": "person-tp-036",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1252",
+        "dob": "1981-01-15",
+        "occupation": "Software Engineer"
+      },
+      "line2_contributions": 4150,
+      "line6_allowable": 8300,
+      "line13_deduction": 4150,
+      "coverage": "family",
+      "employer_contributions": 0
+    }
+  ],
+  "state_returns": [
+    {
+      "state": "NY",
+      "residency": "resident",
+      "state_wages": 30800,
+      "state_withholding": 1925,
+      "ptet_election_eligible": false
+    },
+    {
+      "state": "NJ",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 7700,
+      "state_withholding": 385,
+      "ptet_election_eligible": false
+    }
+  ],
+  "prior_year": {
+    "tax_year": 2024,
+    "filing_status": "hoh",
+    "agi": 33500,
+    "total_tax": 5775,
+    "refund_or_owed": 1000,
+    "filed_date": "2025-03-15",
+    "prior_preparer_name": "Pat Daniels, CPA",
+    "prior_preparer_credential": "CPA",
+    "carryforwards": {
+      "capital_loss": 2500,
+      "passive_activity_loss": 1000
+    }
+  },
+  "agi": 40900,
+  "total_tax": 7362
+}

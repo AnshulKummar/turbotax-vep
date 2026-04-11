@@ -1,0 +1,388 @@
+{
+  "case_id": "test-return-035",
+  "params": {
+    "index": 35,
+    "filing_status": "single",
+    "income_tier": "high",
+    "wage_profile": "schedule_c",
+    "state_mix": "ny_nj",
+    "has_rental": true,
+    "has_k1": true,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": true,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": true
+  },
+  "expected_finding_rule_ids": [
+    "amt-depreciation-003",
+    "amt-salt-addback-002",
+    "depreciation-land-split-001",
+    "estimated-tax-annualized-004",
+    "estimated-tax-safe-harbor-110-001",
+    "estimated-tax-safe-harbor-90-002",
+    "estimated-tax-underpayment-003",
+    "passive-469-agi-phaseout-001",
+    "passive-k1-nonpassive-002",
+    "passive-rep-consider-004",
+    "ptet-apportionment-003",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "retirement-roth-phaseout-002",
+    "rsu-double-count-001",
+    "salt-cap-ptet-interaction-002",
+    "salt-prior-year-refund-003",
+    "wash-sale-code-w-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-wash-sale-code-w-001-TS35-WASH-001_TS35-WASH-002",
+      "rule_id": "wash-sale-code-w-001",
+      "category": "wash_sale",
+      "severity": 4,
+      "irc_citation": "IRC §1091",
+      "pub_citation": "IRS Pub 550",
+      "summary": "2 1099-B lot(s) missing Code W on Form 8949 (disallowed loss $3,030)",
+      "detail": "The broker reported a wash sale loss disallowed amount on these lots, but Form 8949 column (f) does not carry Code W and column (g) does not add the disallowance back. IRC §1091 requires the disallowed loss to be tracked and added to the replacement-lot basis. This is a mechanical compliance error that routinely triggers IRS CP2000 notices because the IRS wash-sale computer match sees the broker-reported amount and expects it on the return.",
+      "affected_lines": [
+        "8949.row.TS35-WASH-001",
+        "8949.row.TS35-WASH-002"
+      ],
+      "dollar_impact": {
+        "estimate": 758,
+        "low": 455,
+        "high": 1061
+      },
+      "audit_risk_delta": 0.35
+    },
+    {
+      "finding_id": "finding-rsu-double-count-001-TS35-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS35-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 6300,
+        "low": 5040,
+        "high": 7560
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-passive-469-agi-phaseout-001-global",
+      "rule_id": "passive-469-agi-phaseout-001",
+      "category": "passive_activity_loss",
+      "severity": 5,
+      "irc_citation": "IRC §469(i)",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Rental loss $7,814 disallowed — AGI $418,400 exceeds phaseout",
+      "detail": "IRC §469(i) allows up to $25,000 of rental real estate losses against active income for taxpayers who actively participate. The allowance phases out between $100,000 and $150,000 AGI, and is fully disallowed at $150,000+. This return's AGI is $418,400, so the rental loss is fully suspended and carried forward under §469(b).",
+      "affected_lines": [
+        "1040.sch1.line.5",
+        "8582.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 2735,
+        "low": 2188,
+        "high": 3282
+      },
+      "audit_risk_delta": -0.3
+    },
+    {
+      "finding_id": "finding-passive-k1-nonpassive-002-99-4000035",
+      "rule_id": "passive-k1-nonpassive-002",
+      "category": "passive_activity_loss",
+      "severity": 4,
+      "irc_citation": "IRC §469",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Passive K-1 loss from Synthetic Partners 35 LP must be suspended",
+      "detail": "The K-1 is marked passive and has a loss. Per IRC §469 passive losses can only offset passive income. If there is no passive income to absorb the loss this year, it must be suspended on Form 8582 and carried forward.",
+      "affected_lines": [
+        "8582.part2"
+      ],
+      "dollar_impact": {
+        "estimate": 875,
+        "low": 700,
+        "high": 1050
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-passive-rep-consider-004-rental-035",
+      "rule_id": "passive-rep-consider-004",
+      "category": "passive_activity_loss",
+      "severity": 2,
+      "irc_citation": "IRC §469(c)(7)",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Consider real-estate-professional status on this rental",
+      "detail": "The rental is in service for most of the year. If the taxpayer or spouse spent more than 750 hours on real property trades or businesses and materially participated, rental losses become nonpassive and are not subject to §469 limits.",
+      "affected_lines": [
+        "8582",
+        "schE"
+      ],
+      "dollar_impact": {
+        "estimate": 1000,
+        "low": 500,
+        "high": 1500
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-depreciation-land-split-001-rental-035",
+      "rule_id": "depreciation-land-split-001",
+      "category": "depreciation",
+      "severity": 5,
+      "irc_citation": "IRC §168(b)",
+      "pub_citation": "IRS Pub 527",
+      "summary": "Land not excluded from depreciable basis on Rental City rental",
+      "detail": "IRS Publication 527 requires residential rental depreciation to be computed on the building value only; land is never depreciable. This property's depreciation record has no land_value / building_value split, so the full purchase price is being depreciated. Using a conservative 25% land allocation, the current year over-deduction is about $2,591. Pull Example County assessor records for the actual split before filing.",
+      "affected_lines": [
+        "schE.line.18",
+        "4562"
+      ],
+      "dollar_impact": {
+        "estimate": 907,
+        "low": 635,
+        "high": 1179
+      },
+      "audit_risk_delta": -0.25
+    },
+    {
+      "finding_id": "finding-salt-cap-ptet-interaction-002-global",
+      "rule_id": "salt-cap-ptet-interaction-002",
+      "category": "salt_cap",
+      "severity": 3,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "PTET election can effectively uncap the SALT deduction on K-1 income",
+      "detail": "IRS Notice 2020-75 blessed state-level PTET regimes as a way to pay state tax at the entity level, converting a capped SALT deduction into a federal ordinary business expense that passes through as lower K-1 income. Consider the PTET election with each state where the K-1 generates income.",
+      "affected_lines": [
+        "schA.line.5a",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 1500,
+        "low": 900,
+        "high": 2100
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-salt-prior-year-refund-003-global",
+      "rule_id": "salt-prior-year-refund-003",
+      "category": "salt_cap",
+      "severity": 2,
+      "irc_citation": "IRC §111",
+      "pub_citation": "Pub 525",
+      "summary": "Check §111 taxable state refund worksheet",
+      "detail": "A prior year state refund is only taxable to the extent it produced a federal tax benefit (the §111 tax benefit rule). If prior year was at the SALT cap, the refund is usually NOT taxable. Do the worksheet.",
+      "affected_lines": [
+        "1040.sch1.line.1"
+      ],
+      "dollar_impact": {
+        "estimate": 250,
+        "low": 125,
+        "high": 375
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-035",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Parker has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Parker is 36 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2450,
+        "low": 1960,
+        "high": 2940
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-roth-phaseout-002-global",
+      "rule_id": "retirement-roth-phaseout-002",
+      "category": "retirement_contribution",
+      "severity": 2,
+      "irc_citation": "IRC §408A(c)(3)",
+      "pub_citation": "Pub 590-A",
+      "summary": "AGI above Roth IRA phaseout — consider backdoor Roth",
+      "detail": "AGI $418,400 is above the single Roth IRA phaseout ceiling ($165,000). Direct Roth contributions are not allowed. Consider the backdoor Roth strategy (nondeductible traditional IRA contribution + Roth conversion) if there is no pre-tax IRA balance to trigger pro-rata.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 400,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-035",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Parker: $9,500 of 401k/403b headroom",
+      "detail": "Parker has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 3325,
+        "low": 2660,
+        "high": 3990
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-ptet-apportionment-003-global",
+      "rule_id": "ptet-apportionment-003",
+      "category": "ptet_election",
+      "severity": 2,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "Pass-through income allocated across 2+ PTET states",
+      "detail": "Multiple states allow a PTET election but apportion the deduction differently. Consult the partnership's state apportionment schedule before electing — the federal benefit stacks per state.",
+      "affected_lines": [
+        "k1.state"
+      ],
+      "dollar_impact": {
+        "estimate": 700,
+        "low": 420,
+        "high": 980
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-amt-salt-addback-002-global",
+      "rule_id": "amt-salt-addback-002",
+      "category": "amt",
+      "severity": 3,
+      "irc_citation": "IRC §56(b)(1)",
+      "pub_citation": "Pub 17",
+      "summary": "Large SALT deduction — run Form 6251 to check AMT exposure",
+      "detail": "Total state + property tax is $25,200. SALT is added back for AMT under §56(b)(1), which can tip a high-income household into AMT even at TY2025 exemption levels.",
+      "affected_lines": [
+        "6251"
+      ],
+      "dollar_impact": {
+        "estimate": 800,
+        "low": 400,
+        "high": 1200
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-amt-depreciation-003-global",
+      "rule_id": "amt-depreciation-003",
+      "category": "amt",
+      "severity": 2,
+      "irc_citation": "IRC §56(a)(1)",
+      "pub_citation": "Pub 946",
+      "summary": "MACRS depreciation timing differences can create AMT adjustments",
+      "detail": "Residential rental (27.5-year) and commercial (39-year) MACRS use straight-line which is identical for regular and AMT, so no adjustment — but personal property (5/7-year) uses 200% DB for regular and 150% DB for AMT. Check any §179 / personal-property depreciation for an addback.",
+      "affected_lines": [
+        "6251.line.2l"
+      ],
+      "dollar_impact": {
+        "estimate": 300,
+        "low": 120,
+        "high": 480
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-110-001-global",
+      "rule_id": "estimated-tax-safe-harbor-110-001",
+      "category": "estimated_tax",
+      "severity": 4,
+      "irc_citation": "IRC §6654(d)(1)(C)",
+      "pub_citation": "Pub 505",
+      "summary": "Underpayment: need $69,300 withheld for 110% safe harbor",
+      "detail": "Prior year AGI exceeded $150,000, so the §6654 safe harbor requires 110% of prior year total tax ($69,300) to be paid via withholding or quarterly estimates. Currently $50,400 is withheld; consider a Q4 estimated payment or increased withholding of $18,900 to avoid the §6654 penalty.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 1512,
+        "low": 907,
+        "high": 2117
+      },
+      "audit_risk_delta": -0.1
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $67,781 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-underpayment-003-global",
+      "rule_id": "estimated-tax-underpayment-003",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654",
+      "pub_citation": "Pub 505",
+      "summary": "Estimated §6654 penalty ~$695",
+      "detail": "Based on a shortfall of $17,381 and the TY2025 applicable interest rate of ~8%, the underpayment penalty is approximately $695. Consider the annualized income method (Schedule AI) if income was lumpy across quarters.",
+      "affected_lines": [
+        "2210"
+      ],
+      "dollar_impact": {
+        "estimate": 695,
+        "low": 417,
+        "high": 973
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-annualized-004-global",
+      "rule_id": "estimated-tax-annualized-004",
+      "category": "estimated_tax",
+      "severity": 2,
+      "irc_citation": "IRC §6654(d)(2)",
+      "pub_citation": "Pub 505",
+      "summary": "Use Schedule AI to reduce §6654 penalty on lumpy income",
+      "detail": "Income arrived unevenly (RSU vest, K-1 distribution, or both). Form 2210 Schedule AI lets you annualize quarterly income so early quarters with little income do not generate a penalty.",
+      "affected_lines": [
+        "2210.schAI"
+      ],
+      "dollar_impact": {
+        "estimate": 400,
+        "low": 200,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    }
+  ]
+}

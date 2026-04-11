@@ -1,0 +1,267 @@
+{
+  "case_id": "test-return-014",
+  "params": {
+    "index": 14,
+    "filing_status": "single",
+    "income_tier": "upper",
+    "wage_profile": "schedule_c",
+    "state_mix": "single_il",
+    "has_rental": false,
+    "has_k1": true,
+    "has_rsu": false,
+    "has_hsa": true,
+    "has_wash_sale": false,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": true
+  },
+  "expected_finding_rule_ids": [
+    "estimated-tax-annualized-004",
+    "estimated-tax-safe-harbor-110-001",
+    "estimated-tax-safe-harbor-90-002",
+    "estimated-tax-underpayment-003",
+    "hsa-8889-reconcile-001",
+    "passive-k1-nonpassive-002",
+    "ptet-election-il-001",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "retirement-roth-phaseout-002",
+    "salt-cap-ptet-interaction-002",
+    "salt-prior-year-refund-003"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-hsa-8889-reconcile-001-person-tp-014",
+      "rule_id": "hsa-8889-reconcile-001",
+      "category": "hsa",
+      "severity": 4,
+      "irc_citation": "IRC §223",
+      "pub_citation": "IRS Pub 969",
+      "summary": "Form 8889 line 2/6/13 do not reconcile",
+      "detail": "Form 8889 requires line 2 (contributions), line 6 (allowable), and line 13 (deduction) to reconcile with the TY2025 statutory limit. line 6 is $8,300 but TY2025 family limit is $8,550.",
+      "affected_lines": [
+        "8889.line.2",
+        "8889.line.6",
+        "8889.line.13"
+      ],
+      "dollar_impact": {
+        "estimate": 1408,
+        "low": 986,
+        "high": 1830
+      },
+      "audit_risk_delta": 0.15
+    },
+    {
+      "finding_id": "finding-passive-k1-nonpassive-002-99-4000014",
+      "rule_id": "passive-k1-nonpassive-002",
+      "category": "passive_activity_loss",
+      "severity": 4,
+      "irc_citation": "IRC §469",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Passive K-1 loss from Synthetic Partners 14 LP must be suspended",
+      "detail": "The K-1 is marked passive and has a loss. Per IRC §469 passive losses can only offset passive income. If there is no passive income to absorb the loss this year, it must be suspended on Form 8582 and carried forward.",
+      "affected_lines": [
+        "8582.part2"
+      ],
+      "dollar_impact": {
+        "estimate": 800,
+        "low": 640,
+        "high": 960
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-salt-cap-ptet-interaction-002-global",
+      "rule_id": "salt-cap-ptet-interaction-002",
+      "category": "salt_cap",
+      "severity": 3,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "PTET election can effectively uncap the SALT deduction on K-1 income",
+      "detail": "IRS Notice 2020-75 blessed state-level PTET regimes as a way to pay state tax at the entity level, converting a capped SALT deduction into a federal ordinary business expense that passes through as lower K-1 income. Consider the PTET election with each state where the K-1 generates income.",
+      "affected_lines": [
+        "schA.line.5a",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 1500,
+        "low": 900,
+        "high": 2100
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-salt-prior-year-refund-003-global",
+      "rule_id": "salt-prior-year-refund-003",
+      "category": "salt_cap",
+      "severity": 2,
+      "irc_citation": "IRC §111",
+      "pub_citation": "Pub 525",
+      "summary": "Check §111 taxable state refund worksheet",
+      "detail": "A prior year state refund is only taxable to the extent it produced a federal tax benefit (the §111 tax benefit rule). If prior year was at the SALT cap, the refund is usually NOT taxable. Do the worksheet.",
+      "affected_lines": [
+        "1040.sch1.line.1"
+      ],
+      "dollar_impact": {
+        "estimate": 250,
+        "low": 125,
+        "high": 375
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-014",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Riley has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Riley is 39 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2240,
+        "low": 1792,
+        "high": 2688
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-roth-phaseout-002-global",
+      "rule_id": "retirement-roth-phaseout-002",
+      "category": "retirement_contribution",
+      "severity": 2,
+      "irc_citation": "IRC §408A(c)(3)",
+      "pub_citation": "Pub 590-A",
+      "summary": "AGI above Roth IRA phaseout — consider backdoor Roth",
+      "detail": "AGI $214,900 is above the single Roth IRA phaseout ceiling ($165,000). Direct Roth contributions are not allowed. Consider the backdoor Roth strategy (nondeductible traditional IRA contribution + Roth conversion) if there is no pre-tax IRA balance to trigger pro-rata.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 400,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-014",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Riley: $9,500 of 401k/403b headroom",
+      "detail": "Riley has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 3040,
+        "low": 2432,
+        "high": 3648
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-ptet-election-il-001-IL",
+      "rule_id": "ptet-election-il-001",
+      "category": "ptet_election",
+      "severity": 4,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "Illinois PTET election available on pass-through income",
+      "detail": "Illinois allows a pass-through entity to elect to pay state tax at the entity level, producing a federal ordinary business deduction that effectively uncaps the SALT cost on this K-1. The return has eligible pass-through income but the state slice is not flagged as having made the election.",
+      "affected_lines": [
+        "k1.state",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 300,
+        "high": 700
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-110-001-global",
+      "rule_id": "estimated-tax-safe-harbor-110-001",
+      "category": "estimated_tax",
+      "severity": 4,
+      "irc_citation": "IRC §6654(d)(1)(C)",
+      "pub_citation": "Pub 505",
+      "summary": "Underpayment: need $35,475 withheld for 110% safe harbor",
+      "detail": "Prior year AGI exceeded $150,000, so the §6654 safe harbor requires 110% of prior year total tax ($35,475) to be paid via withholding or quarterly estimates. Currently $25,800 is withheld; consider a Q4 estimated payment or increased withholding of $9,675 to avoid the §6654 penalty.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 774,
+        "low": 464,
+        "high": 1084
+      },
+      "audit_risk_delta": -0.1
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $34,814 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-underpayment-003-global",
+      "rule_id": "estimated-tax-underpayment-003",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654",
+      "pub_citation": "Pub 505",
+      "summary": "Estimated §6654 penalty ~$361",
+      "detail": "Based on a shortfall of $9,014 and the TY2025 applicable interest rate of ~8%, the underpayment penalty is approximately $361. Consider the annualized income method (Schedule AI) if income was lumpy across quarters.",
+      "affected_lines": [
+        "2210"
+      ],
+      "dollar_impact": {
+        "estimate": 361,
+        "low": 217,
+        "high": 505
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-annualized-004-global",
+      "rule_id": "estimated-tax-annualized-004",
+      "category": "estimated_tax",
+      "severity": 2,
+      "irc_citation": "IRC §6654(d)(2)",
+      "pub_citation": "Pub 505",
+      "summary": "Use Schedule AI to reduce §6654 penalty on lumpy income",
+      "detail": "Income arrived unevenly (RSU vest, K-1 distribution, or both). Form 2210 Schedule AI lets you annualize quarterly income so early quarters with little income do not generate a penalty.",
+      "affected_lines": [
+        "2210.schAI"
+      ],
+      "dollar_impact": {
+        "estimate": 400,
+        "low": 200,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    }
+  ]
+}

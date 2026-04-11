@@ -1,0 +1,181 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-010",
+  "filing_status": "mfs",
+  "taxpayer": {
+    "id": "person-tp-010",
+    "first_name": "Jordan",
+    "last_name": "Kim",
+    "ssn": "900-44-1070",
+    "dob": "1982-02-13",
+    "occupation": "Software Engineer"
+  },
+  "spouse": {
+    "id": "person-sp-010",
+    "first_name": "Avery",
+    "last_name": "Nguyen",
+    "ssn": "902-55-1081",
+    "dob": "1982-02-13",
+    "occupation": "Teacher"
+  },
+  "dependents": [],
+  "address": {
+    "line1": "1010 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "NY",
+    "zip": "90010",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 10",
+      "employer_ein": "99-1000010",
+      "employee": {
+        "id": "person-tp-010",
+        "first_name": "Jordan",
+        "last_name": "Kim",
+        "ssn": "900-44-1070",
+        "dob": "1982-02-13",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 215000,
+      "box2_fed_withholding": 25800,
+      "box3_ss_wages": 176100,
+      "box4_ss_withholding": 10918,
+      "box5_medicare_wages": 215000,
+      "box6_medicare_withholding": 3118,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "NY",
+          "wages": 172000,
+          "withholding": 10750
+        },
+        {
+          "state": "NJ",
+          "wages": 43000,
+          "withholding": 2150
+        }
+      ]
+    },
+    {
+      "employer_name": "Public School District 10",
+      "employer_ein": "99-2000010",
+      "employee": {
+        "id": "person-sp-010",
+        "first_name": "Avery",
+        "last_name": "Nguyen",
+        "ssn": "902-55-1081",
+        "dob": "1982-02-13",
+        "occupation": "Teacher"
+      },
+      "box1_wages": 68000,
+      "box2_fed_withholding": 7900,
+      "box3_ss_wages": 68000,
+      "box4_ss_withholding": 4216,
+      "box5_medicare_wages": 68000,
+      "box6_medicare_withholding": 986,
+      "box12": [
+        {
+          "code": "E",
+          "amount": 6000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "NY",
+          "wages": 68000,
+          "withholding": 3300
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000010",
+      "recipient": {
+        "id": "person-tp-010",
+        "first_name": "Jordan",
+        "last_name": "Kim",
+        "ssn": "900-44-1070",
+        "dob": "1982-02-13",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS10-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS10-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000010",
+      "recipient": {
+        "id": "person-tp-010",
+        "first_name": "Jordan",
+        "last_name": "Kim",
+        "ssn": "900-44-1070",
+        "dob": "1982-02-13",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 480
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [],
+  "state_returns": [
+    {
+      "state": "NY",
+      "residency": "resident",
+      "state_wages": 172000,
+      "state_withholding": 10750,
+      "ptet_election_eligible": false
+    },
+    {
+      "state": "NJ",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 43000,
+      "state_withholding": 2150,
+      "ptet_election_eligible": false
+    }
+  ],
+  "agi": 285400,
+  "total_tax": 51372
+}

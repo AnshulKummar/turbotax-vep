@@ -1,0 +1,169 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-005",
+  "filing_status": "hoh",
+  "taxpayer": {
+    "id": "person-tp-005",
+    "first_name": "Parker",
+    "last_name": "Mensah",
+    "ssn": "900-44-1035",
+    "dob": "1986-06-16",
+    "occupation": "Software Engineer"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-005",
+      "first_name": "Parker",
+      "last_name": "Mensah",
+      "ssn": "901-66-1068",
+      "dob": "2016-06-16"
+    }
+  ],
+  "address": {
+    "line1": "1005 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "IL",
+    "zip": "90005",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 5",
+      "employer_ein": "99-1000005",
+      "employee": {
+        "id": "person-tp-005",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1035",
+        "dob": "1986-06-16",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 92000,
+      "box2_fed_withholding": 11040,
+      "box3_ss_wages": 92000,
+      "box4_ss_withholding": 5704,
+      "box5_medicare_wages": 92000,
+      "box6_medicare_withholding": 1334,
+      "box12": [
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "IL",
+          "wages": 73600,
+          "withholding": 4600
+        },
+        {
+          "state": "CA",
+          "wages": 18400,
+          "withholding": 920
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000005",
+      "recipient": {
+        "id": "person-tp-005",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1035",
+        "dob": "1986-06-16",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS5-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000005",
+      "recipient": {
+        "id": "person-tp-005",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1035",
+        "dob": "1986-06-16",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [
+    {
+      "partnership_name": "Synthetic Partners 5 LP",
+      "partnership_ein": "99-4000005",
+      "partner": {
+        "id": "person-tp-005",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1035",
+        "dob": "1986-06-16",
+        "occupation": "Software Engineer"
+      },
+      "is_passive": true,
+      "ordinary_business_income": -2500,
+      "rental_real_estate_income": 0,
+      "interest_income": 100,
+      "dividend_income": 60,
+      "guaranteed_payments": 0,
+      "section_179_deduction": 0
+    }
+  ],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [],
+  "state_returns": [
+    {
+      "state": "IL",
+      "residency": "resident",
+      "state_wages": 73600,
+      "state_withholding": 4600,
+      "ptet_election_eligible": true
+    },
+    {
+      "state": "CA",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 18400,
+      "state_withholding": 920,
+      "ptet_election_eligible": true
+    }
+  ],
+  "prior_year": {
+    "tax_year": 2024,
+    "filing_status": "hoh",
+    "agi": 87000,
+    "total_tax": 13800,
+    "refund_or_owed": 1000,
+    "filed_date": "2025-03-15",
+    "prior_preparer_name": "Pat Daniels, CPA",
+    "prior_preparer_credential": "CPA",
+    "carryforwards": {
+      "capital_loss": 2500,
+      "passive_activity_loss": 1000
+    }
+  },
+  "agi": 91900,
+  "total_tax": 16542
+}

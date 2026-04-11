@@ -1,0 +1,285 @@
+{
+  "case_id": "test-return-004",
+  "params": {
+    "index": 4,
+    "filing_status": "hoh",
+    "income_tier": "low",
+    "wage_profile": "w2_plus_1099",
+    "state_mix": "single_tx",
+    "has_rental": false,
+    "has_k1": true,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": false,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": true
+  },
+  "expected_finding_rule_ids": [
+    "credit-ctc-001",
+    "credit-dependent-care-005",
+    "credit-eitc-002",
+    "credit-llc-004",
+    "estimated-tax-annualized-004",
+    "estimated-tax-safe-harbor-90-002",
+    "estimated-tax-underpayment-003",
+    "passive-k1-nonpassive-002",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "rsu-double-count-001",
+    "salt-cap-ptet-interaction-002",
+    "salt-prior-year-refund-003"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-rsu-double-count-001-TS4-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS4-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 2160,
+        "low": 1728,
+        "high": 2592
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-passive-k1-nonpassive-002-99-4000004",
+      "rule_id": "passive-k1-nonpassive-002",
+      "category": "passive_activity_loss",
+      "severity": 4,
+      "irc_citation": "IRC §469",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Passive K-1 loss from Synthetic Partners 4 LP must be suspended",
+      "detail": "The K-1 is marked passive and has a loss. Per IRC §469 passive losses can only offset passive income. If there is no passive income to absorb the loss this year, it must be suspended on Form 8582 and carried forward.",
+      "affected_lines": [
+        "8582.part2"
+      ],
+      "dollar_impact": {
+        "estimate": 300,
+        "low": 240,
+        "high": 360
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-salt-cap-ptet-interaction-002-global",
+      "rule_id": "salt-cap-ptet-interaction-002",
+      "category": "salt_cap",
+      "severity": 3,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "PTET election can effectively uncap the SALT deduction on K-1 income",
+      "detail": "IRS Notice 2020-75 blessed state-level PTET regimes as a way to pay state tax at the entity level, converting a capped SALT deduction into a federal ordinary business expense that passes through as lower K-1 income. Consider the PTET election with each state where the K-1 generates income.",
+      "affected_lines": [
+        "schA.line.5a",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 1500,
+        "low": 900,
+        "high": 2100
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-salt-prior-year-refund-003-global",
+      "rule_id": "salt-prior-year-refund-003",
+      "category": "salt_cap",
+      "severity": 2,
+      "irc_citation": "IRC §111",
+      "pub_citation": "Pub 525",
+      "summary": "Check §111 taxable state refund worksheet",
+      "detail": "A prior year state refund is only taxable to the extent it produced a federal tax benefit (the §111 tax benefit rule). If prior year was at the SALT cap, the refund is usually NOT taxable. Do the worksheet.",
+      "affected_lines": [
+        "1040.sch1.line.1"
+      ],
+      "dollar_impact": {
+        "estimate": 250,
+        "low": 125,
+        "high": 375
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-004",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Riley has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Riley is 40 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 840,
+        "low": 672,
+        "high": 1008
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-004",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Riley: $9,500 of 401k/403b headroom",
+      "detail": "Riley has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 1140,
+        "low": 912,
+        "high": 1368
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-ctc-001-global",
+      "rule_id": "credit-ctc-001",
+      "category": "credit_eligibility",
+      "severity": 3,
+      "irc_citation": "IRC §24",
+      "pub_citation": "Pub 972",
+      "summary": "CTC: 1 × $2,000 = $2,000",
+      "detail": "1 qualifying child/ren under age 17. AGI is below the phaseout start, so the full $2,000 per child is available.",
+      "affected_lines": [
+        "1040.line.19"
+      ],
+      "dollar_impact": {
+        "estimate": 2000,
+        "low": 1600,
+        "high": 2400
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-eitc-002-global",
+      "rule_id": "credit-eitc-002",
+      "category": "credit_eligibility",
+      "severity": 2,
+      "irc_citation": "IRC §32",
+      "pub_citation": "Pub 596",
+      "summary": "AGI below EITC cap — verify EITC eligibility",
+      "detail": "AGI is below the EITC ceiling. Verify residency, earned income, investment income (< $11,950 for TY2025), and qualifying-child tests.",
+      "affected_lines": [
+        "1040.line.27"
+      ],
+      "dollar_impact": {
+        "estimate": 1000,
+        "low": 500,
+        "high": 1500
+      },
+      "audit_risk_delta": 0.15
+    },
+    {
+      "finding_id": "finding-credit-llc-004-global",
+      "rule_id": "credit-llc-004",
+      "category": "credit_eligibility",
+      "severity": 2,
+      "irc_citation": "IRC §25A(c)",
+      "pub_citation": "Pub 970",
+      "summary": "LLC available for qualified education expenses",
+      "detail": "AGI is below the LLC phaseout. Up to $2,000 per return (20% of first $10,000 of qualified education expenses). Non-refundable.",
+      "affected_lines": [
+        "8863"
+      ],
+      "dollar_impact": {
+        "estimate": 2000,
+        "low": 1200,
+        "high": 2800
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-credit-dependent-care-005-global",
+      "rule_id": "credit-dependent-care-005",
+      "category": "credit_eligibility",
+      "severity": 2,
+      "irc_citation": "IRC §21",
+      "pub_citation": "Pub 503",
+      "summary": "Dependent care credit available (20% at high AGI)",
+      "detail": "Up to $3,000 of qualified dependent-care expenses can support the credit, though at AGI > $43K the rate is 20%. Requires both spouses to have earned income in MFJ.",
+      "affected_lines": [
+        "2441",
+        "1040.sch3.line.6"
+      ],
+      "dollar_impact": {
+        "estimate": 600,
+        "low": 420,
+        "high": 780
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $6,221 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-underpayment-003-global",
+      "rule_id": "estimated-tax-underpayment-003",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654",
+      "pub_citation": "Pub 505",
+      "summary": "Estimated §6654 penalty ~$46",
+      "detail": "Based on a shortfall of $1,155 and the TY2025 applicable interest rate of ~8%, the underpayment penalty is approximately $46. Consider the annualized income method (Schedule AI) if income was lumpy across quarters.",
+      "affected_lines": [
+        "2210"
+      ],
+      "dollar_impact": {
+        "estimate": 46,
+        "low": 28,
+        "high": 64
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-annualized-004-global",
+      "rule_id": "estimated-tax-annualized-004",
+      "category": "estimated_tax",
+      "severity": 2,
+      "irc_citation": "IRC §6654(d)(2)",
+      "pub_citation": "Pub 505",
+      "summary": "Use Schedule AI to reduce §6654 penalty on lumpy income",
+      "detail": "Income arrived unevenly (RSU vest, K-1 distribution, or both). Form 2210 Schedule AI lets you annualize quarterly income so early quarters with little income do not generate a penalty.",
+      "affected_lines": [
+        "2210.schAI"
+      ],
+      "dollar_impact": {
+        "estimate": 400,
+        "low": 200,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    }
+  ]
+}
