@@ -1,0 +1,283 @@
+{
+  "case_id": "test-return-027",
+  "params": {
+    "index": 27,
+    "filing_status": "mfj",
+    "income_tier": "high",
+    "wage_profile": "w2_only",
+    "state_mix": "ca_wa",
+    "has_rental": false,
+    "has_k1": false,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": true,
+    "has_iso": true,
+    "has_foreign": true,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "amt-ftc-004",
+    "amt-salt-addback-002",
+    "credit-ctc-001",
+    "estimated-tax-safe-harbor-90-002",
+    "ftc-small-election-002",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "retirement-roth-phaseout-002",
+    "rsu-double-count-001",
+    "salt-cap-tcja-2025-001",
+    "wash-sale-code-w-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-wash-sale-code-w-001-TS27-WASH-001_TS27-WASH-002",
+      "rule_id": "wash-sale-code-w-001",
+      "category": "wash_sale",
+      "severity": 4,
+      "irc_citation": "IRC §1091",
+      "pub_citation": "IRS Pub 550",
+      "summary": "2 1099-B lot(s) missing Code W on Form 8949 (disallowed loss $3,030)",
+      "detail": "The broker reported a wash sale loss disallowed amount on these lots, but Form 8949 column (f) does not carry Code W and column (g) does not add the disallowance back. IRC §1091 requires the disallowed loss to be tracked and added to the replacement-lot basis. This is a mechanical compliance error that routinely triggers IRS CP2000 notices because the IRS wash-sale computer match sees the broker-reported amount and expects it on the return.",
+      "affected_lines": [
+        "8949.row.TS27-WASH-001",
+        "8949.row.TS27-WASH-002"
+      ],
+      "dollar_impact": {
+        "estimate": 758,
+        "low": 455,
+        "high": 1061
+      },
+      "audit_risk_delta": 0.35
+    },
+    {
+      "finding_id": "finding-rsu-double-count-001-TS27-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS27-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 5760,
+        "low": 4608,
+        "high": 6912
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-ftc-small-election-002-global",
+      "rule_id": "ftc-small-election-002",
+      "category": "foreign_tax_credit",
+      "severity": 2,
+      "irc_citation": "IRC §904(k)",
+      "pub_citation": "IRS Pub 514",
+      "summary": "Foreign tax $480 can be claimed directly without Form 1116",
+      "detail": "Total foreign tax paid is $480, under the $600 election threshold. Claim the credit on Schedule 3 without Form 1116 to save filing complexity.",
+      "affected_lines": [
+        "1040.sch3.line.1"
+      ],
+      "dollar_impact": {
+        "estimate": 480,
+        "low": 432,
+        "high": 528
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-salt-cap-tcja-2025-001-global",
+      "rule_id": "salt-cap-tcja-2025-001",
+      "category": "salt_cap",
+      "severity": 5,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "Pub 17 Chapter 22",
+      "summary": "SALT deduction up to $40K MFJ for TY2025 — recover $18,500",
+      "detail": "The TCJA permanent extension raised the SALT cap from $10,000 to $40,000 MFJ starting in TY2025. State + property tax paid is $28,500, which under the new cap yields a SALT deduction of $28,500 instead of the prior-law $10,000. Verify Schedule A line 5e uses the TY2025 cap.",
+      "affected_lines": [
+        "schA.line.5e"
+      ],
+      "dollar_impact": {
+        "estimate": 5920,
+        "low": 4736,
+        "high": 7104
+      },
+      "audit_risk_delta": -0.15
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-027",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Avery has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Avery is 44 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2240,
+        "low": 1792,
+        "high": 2688
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-sp-027",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Riley has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Riley is 44 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2240,
+        "low": 1792,
+        "high": 2688
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-roth-phaseout-002-global",
+      "rule_id": "retirement-roth-phaseout-002",
+      "category": "retirement_contribution",
+      "severity": 2,
+      "irc_citation": "IRC §408A(c)(3)",
+      "pub_citation": "Pub 590-A",
+      "summary": "AGI above Roth IRA phaseout — consider backdoor Roth",
+      "detail": "AGI $490,400 is above the MFJ Roth IRA phaseout ceiling ($246,000). Direct Roth contributions are not allowed. Consider the backdoor Roth strategy (nondeductible traditional IRA contribution + Roth conversion) if there is no pre-tax IRA balance to trigger pro-rata.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 400,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-027",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Avery: $9,500 of 401k/403b headroom",
+      "detail": "Avery has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 3040,
+        "low": 2432,
+        "high": 3648
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-sp-027",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Riley: $17,500 of 401k/403b headroom",
+      "detail": "Riley has contributed $6,000 toward the TY2025 §402(g) limit of $23,500. Another $17,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 5600,
+        "low": 4480,
+        "high": 6720
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-ctc-001-global",
+      "rule_id": "credit-ctc-001",
+      "category": "credit_eligibility",
+      "severity": 3,
+      "irc_citation": "IRC §24",
+      "pub_citation": "Pub 972",
+      "summary": "CTC phased to $0 at AGI $490,400",
+      "detail": "Child Tax Credit phases out $50 per $1,000 of AGI above the phaseout start ($400,000 MFJ).",
+      "affected_lines": [
+        "1040.line.19"
+      ],
+      "dollar_impact": {
+        "estimate": 0,
+        "low": 0,
+        "high": 0
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-amt-salt-addback-002-global",
+      "rule_id": "amt-salt-addback-002",
+      "category": "amt",
+      "severity": 3,
+      "irc_citation": "IRC §56(b)(1)",
+      "pub_citation": "Pub 17",
+      "summary": "Large SALT deduction — run Form 6251 to check AMT exposure",
+      "detail": "Total state + property tax is $25,200. SALT is added back for AMT under §56(b)(1), which can tip a high-income household into AMT even at TY2025 exemption levels.",
+      "affected_lines": [
+        "6251"
+      ],
+      "dollar_impact": {
+        "estimate": 800,
+        "low": 400,
+        "high": 1200
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-amt-ftc-004-global",
+      "rule_id": "amt-ftc-004",
+      "category": "amt",
+      "severity": 2,
+      "irc_citation": "IRC §59(a)",
+      "pub_citation": "Pub 514",
+      "summary": "Compute AMT foreign tax credit separately on Form 1116",
+      "detail": "At high income with foreign tax paid, AMT requires a parallel Form 1116 using AMT sourcing rules under §59(a). The regular FTC and AMT FTC are often different.",
+      "affected_lines": [
+        "6251.line.8"
+      ],
+      "dollar_impact": {
+        "estimate": 150,
+        "low": 75,
+        "high": 225
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $79,445 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-016",
+  "filing_status": "mfj",
+  "taxpayer": {
+    "id": "person-tp-016",
+    "first_name": "Reese",
+    "last_name": "Silva",
+    "ssn": "900-44-1112",
+    "dob": "1988-08-11",
+    "occupation": "Software Engineer"
+  },
+  "spouse": {
+    "id": "person-sp-016",
+    "first_name": "Rowan",
+    "last_name": "Larsen",
+    "ssn": "902-55-1123",
+    "dob": "1988-08-11",
+    "occupation": "Teacher"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-016",
+      "first_name": "Reese",
+      "last_name": "Silva",
+      "ssn": "901-66-1145",
+      "dob": "2018-08-11"
+    }
+  ],
+  "address": {
+    "line1": "1016 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "TX",
+    "zip": "90016",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 16",
+      "employer_ein": "99-1000016",
+      "employee": {
+        "id": "person-tp-016",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1112",
+        "dob": "1988-08-11",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 38500,
+      "box2_fed_withholding": 4620,
+      "box3_ss_wages": 38500,
+      "box4_ss_withholding": 2387,
+      "box5_medicare_wages": 38500,
+      "box6_medicare_withholding": 558,
+      "box12": [
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "TX",
+          "wages": 30800,
+          "withholding": 1925
+        }
+      ]
+    },
+    {
+      "employer_name": "Public School District 16",
+      "employer_ein": "99-2000016",
+      "employee": {
+        "id": "person-sp-016",
+        "first_name": "Rowan",
+        "last_name": "Larsen",
+        "ssn": "902-55-1123",
+        "dob": "1988-08-11",
+        "occupation": "Teacher"
+      },
+      "box1_wages": 68000,
+      "box2_fed_withholding": 7900,
+      "box3_ss_wages": 68000,
+      "box4_ss_withholding": 4216,
+      "box5_medicare_wages": 68000,
+      "box6_medicare_withholding": 986,
+      "box12": [
+        {
+          "code": "E",
+          "amount": 6000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "TX",
+          "wages": 68000,
+          "withholding": 3300
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000016",
+      "recipient": {
+        "id": "person-tp-016",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1112",
+        "dob": "1988-08-11",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS16-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000016",
+      "recipient": {
+        "id": "person-tp-016",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1112",
+        "dob": "1988-08-11",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [
+    {
+      "account_holder": {
+        "id": "person-tp-016",
+        "first_name": "Reese",
+        "last_name": "Silva",
+        "ssn": "900-44-1112",
+        "dob": "1988-08-11",
+        "occupation": "Software Engineer"
+      },
+      "line2_contributions": 4150,
+      "line6_allowable": 8300,
+      "line13_deduction": 4150,
+      "coverage": "family",
+      "employer_contributions": 0
+    }
+  ],
+  "state_returns": [
+    {
+      "state": "TX",
+      "residency": "resident",
+      "state_wages": 30800,
+      "state_withholding": 1925,
+      "ptet_election_eligible": false
+    }
+  ],
+  "agi": 108900,
+  "total_tax": 19602
+}

@@ -1,0 +1,268 @@
+{
+  "case_id": "test-return-017",
+  "params": {
+    "index": 17,
+    "filing_status": "mfs",
+    "income_tier": "mid",
+    "wage_profile": "schedule_c",
+    "state_mix": "il_ca",
+    "has_rental": false,
+    "has_k1": true,
+    "has_rsu": false,
+    "has_hsa": true,
+    "has_wash_sale": true,
+    "has_iso": false,
+    "has_foreign": false,
+    "has_prior_year": false
+  },
+  "expected_finding_rule_ids": [
+    "estimated-tax-safe-harbor-90-002",
+    "hsa-8889-reconcile-001",
+    "passive-k1-nonpassive-002",
+    "ptet-apportionment-003",
+    "ptet-election-ca-002",
+    "ptet-election-il-001",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "salt-cap-ptet-interaction-002",
+    "wash-sale-code-w-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-wash-sale-code-w-001-TS17-WASH-001_TS17-WASH-002",
+      "rule_id": "wash-sale-code-w-001",
+      "category": "wash_sale",
+      "severity": 4,
+      "irc_citation": "IRC §1091",
+      "pub_citation": "IRS Pub 550",
+      "summary": "2 1099-B lot(s) missing Code W on Form 8949 (disallowed loss $3,030)",
+      "detail": "The broker reported a wash sale loss disallowed amount on these lots, but Form 8949 column (f) does not carry Code W and column (g) does not add the disallowance back. IRC §1091 requires the disallowed loss to be tracked and added to the replacement-lot basis. This is a mechanical compliance error that routinely triggers IRS CP2000 notices because the IRS wash-sale computer match sees the broker-reported amount and expects it on the return.",
+      "affected_lines": [
+        "8949.row.TS17-WASH-001",
+        "8949.row.TS17-WASH-002"
+      ],
+      "dollar_impact": {
+        "estimate": 758,
+        "low": 455,
+        "high": 1061
+      },
+      "audit_risk_delta": 0.35
+    },
+    {
+      "finding_id": "finding-hsa-8889-reconcile-001-person-tp-017",
+      "rule_id": "hsa-8889-reconcile-001",
+      "category": "hsa",
+      "severity": 4,
+      "irc_citation": "IRC §223",
+      "pub_citation": "IRS Pub 969",
+      "summary": "Form 8889 line 2/6/13 do not reconcile",
+      "detail": "Form 8889 requires line 2 (contributions), line 6 (allowable), and line 13 (deduction) to reconcile with the TY2025 statutory limit. line 6 is $8,300 but TY2025 family limit is $8,550.",
+      "affected_lines": [
+        "8889.line.2",
+        "8889.line.6",
+        "8889.line.13"
+      ],
+      "dollar_impact": {
+        "estimate": 1056,
+        "low": 739,
+        "high": 1373
+      },
+      "audit_risk_delta": 0.15
+    },
+    {
+      "finding_id": "finding-passive-k1-nonpassive-002-99-4000017",
+      "rule_id": "passive-k1-nonpassive-002",
+      "category": "passive_activity_loss",
+      "severity": 4,
+      "irc_citation": "IRC §469",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Passive K-1 loss from Synthetic Partners 17 LP must be suspended",
+      "detail": "The K-1 is marked passive and has a loss. Per IRC §469 passive losses can only offset passive income. If there is no passive income to absorb the loss this year, it must be suspended on Form 8582 and carried forward.",
+      "affected_lines": [
+        "8582.part2"
+      ],
+      "dollar_impact": {
+        "estimate": 600,
+        "low": 480,
+        "high": 720
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-salt-cap-ptet-interaction-002-global",
+      "rule_id": "salt-cap-ptet-interaction-002",
+      "category": "salt_cap",
+      "severity": 3,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "PTET election can effectively uncap the SALT deduction on K-1 income",
+      "detail": "IRS Notice 2020-75 blessed state-level PTET regimes as a way to pay state tax at the entity level, converting a capped SALT deduction into a federal ordinary business expense that passes through as lower K-1 income. Consider the PTET election with each state where the K-1 generates income.",
+      "affected_lines": [
+        "schA.line.5a",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 1500,
+        "low": 900,
+        "high": 2100
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-017",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Avery has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Avery is 36 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1680,
+        "low": 1344,
+        "high": 2016
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-sp-017",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Riley has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Riley is 36 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 1680,
+        "low": 1344,
+        "high": 2016
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-017",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Avery: $9,500 of 401k/403b headroom",
+      "detail": "Avery has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 2280,
+        "low": 1824,
+        "high": 2736
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-sp-017",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Riley: $17,500 of 401k/403b headroom",
+      "detail": "Riley has contributed $6,000 toward the TY2025 §402(g) limit of $23,500. Another $17,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 4200,
+        "low": 3360,
+        "high": 5040
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-ptet-election-il-001-IL",
+      "rule_id": "ptet-election-il-001",
+      "category": "ptet_election",
+      "severity": 4,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "Illinois PTET election available on pass-through income",
+      "detail": "Illinois allows a pass-through entity to elect to pay state tax at the entity level, producing a federal ordinary business deduction that effectively uncaps the SALT cost on this K-1. The return has eligible pass-through income but the state slice is not flagged as having made the election.",
+      "affected_lines": [
+        "k1.state",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 300,
+        "high": 700
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-ptet-election-ca-002-CA",
+      "rule_id": "ptet-election-ca-002",
+      "category": "ptet_election",
+      "severity": 4,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "California PTET election available on pass-through income",
+      "detail": "California allows a pass-through entity to elect to pay state tax at the entity level, producing a federal ordinary business deduction that effectively uncaps the SALT cost on this K-1. The return has eligible pass-through income but the state slice is not flagged as having made the election.",
+      "affected_lines": [
+        "k1.state",
+        "1040.sch1.line.5"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 300,
+        "high": 700
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-ptet-apportionment-003-global",
+      "rule_id": "ptet-apportionment-003",
+      "category": "ptet_election",
+      "severity": 2,
+      "irc_citation": "IRC §164(b)(6)",
+      "pub_citation": "IRS Notice 2020-75",
+      "summary": "Pass-through income allocated across 2+ PTET states",
+      "detail": "Multiple states allow a PTET election but apportion the deduction differently. Consult the partnership's state apportionment schedule before electing — the federal benefit stacks per state.",
+      "affected_lines": [
+        "k1.state"
+      ],
+      "dollar_impact": {
+        "estimate": 700,
+        "low": 420,
+        "high": 980
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $25,904 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    }
+  ]
+}

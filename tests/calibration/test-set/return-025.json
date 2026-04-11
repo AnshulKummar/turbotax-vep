@@ -1,0 +1,261 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-025",
+  "filing_status": "mfj",
+  "taxpayer": {
+    "id": "person-tp-025",
+    "first_name": "Parker",
+    "last_name": "Mensah",
+    "ssn": "900-44-1175",
+    "dob": "1988-08-12",
+    "occupation": "Software Engineer"
+  },
+  "spouse": {
+    "id": "person-sp-025",
+    "first_name": "Casey",
+    "last_name": "Okafor",
+    "ssn": "902-55-1186",
+    "dob": "1988-08-12",
+    "occupation": "Teacher"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-025",
+      "first_name": "Parker",
+      "last_name": "Mensah",
+      "ssn": "901-66-1208",
+      "dob": "2018-08-12"
+    }
+  ],
+  "address": {
+    "line1": "1025 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "NY",
+    "zip": "90025",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 25",
+      "employer_ein": "99-1000025",
+      "employee": {
+        "id": "person-tp-025",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1175",
+        "dob": "1988-08-12",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 92000,
+      "box2_fed_withholding": 11040,
+      "box3_ss_wages": 92000,
+      "box4_ss_withholding": 5704,
+      "box5_medicare_wages": 92000,
+      "box6_medicare_withholding": 1334,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "NY",
+          "wages": 73600,
+          "withholding": 4600
+        },
+        {
+          "state": "NJ",
+          "wages": 18400,
+          "withholding": 920
+        }
+      ]
+    },
+    {
+      "employer_name": "Public School District 25",
+      "employer_ein": "99-2000025",
+      "employee": {
+        "id": "person-sp-025",
+        "first_name": "Casey",
+        "last_name": "Okafor",
+        "ssn": "902-55-1186",
+        "dob": "1988-08-12",
+        "occupation": "Teacher"
+      },
+      "box1_wages": 68000,
+      "box2_fed_withholding": 7900,
+      "box3_ss_wages": 68000,
+      "box4_ss_withholding": 4216,
+      "box5_medicare_wages": 68000,
+      "box6_medicare_withholding": 986,
+      "box12": [
+        {
+          "code": "E",
+          "amount": 6000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "NY",
+          "wages": 68000,
+          "withholding": 3300
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000025",
+      "recipient": {
+        "id": "person-tp-025",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1175",
+        "dob": "1988-08-12",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS25-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS25-WASH-001",
+          "description": "100 sh EXMP ETF",
+          "date_acquired": "2024-11-02",
+          "date_sold": "2025-01-14",
+          "proceeds": 4450,
+          "cost_basis": 6050,
+          "wash_sale_loss_disallowed": 1600,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS25-WASH-002",
+          "description": "50 sh SYNT Corp",
+          "date_acquired": "2024-12-18",
+          "date_sold": "2025-02-01",
+          "proceeds": 6525,
+          "cost_basis": 7955,
+          "wash_sale_loss_disallowed": 1430,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS25-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000025",
+      "recipient": {
+        "id": "person-tp-025",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1175",
+        "dob": "1988-08-12",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [
+    {
+      "partnership_name": "Synthetic Partners 25 LP",
+      "partnership_ein": "99-4000025",
+      "partner": {
+        "id": "person-tp-025",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1175",
+        "dob": "1988-08-12",
+        "occupation": "Software Engineer"
+      },
+      "is_passive": true,
+      "ordinary_business_income": -2500,
+      "rental_real_estate_income": 0,
+      "interest_income": 100,
+      "dividend_income": 60,
+      "guaranteed_payments": 0,
+      "section_179_deduction": 0
+    }
+  ],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [
+    {
+      "account_holder": {
+        "id": "person-tp-025",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1175",
+        "dob": "1988-08-12",
+        "occupation": "Software Engineer"
+      },
+      "line2_contributions": 4150,
+      "line6_allowable": 8300,
+      "line13_deduction": 4150,
+      "coverage": "family",
+      "employer_contributions": 0
+    }
+  ],
+  "state_returns": [
+    {
+      "state": "NY",
+      "residency": "resident",
+      "state_wages": 73600,
+      "state_withholding": 4600,
+      "ptet_election_eligible": true
+    },
+    {
+      "state": "NJ",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 18400,
+      "state_withholding": 920,
+      "ptet_election_eligible": true
+    }
+  ],
+  "prior_year": {
+    "tax_year": 2024,
+    "filing_status": "mfj",
+    "agi": 87000,
+    "total_tax": 13800,
+    "refund_or_owed": 1000,
+    "filed_date": "2025-03-15",
+    "prior_preparer_name": "Pat Daniels, CPA",
+    "prior_preparer_credential": "CPA",
+    "carryforwards": {
+      "capital_loss": 2500,
+      "passive_activity_loss": 1000
+    }
+  },
+  "agi": 159900,
+  "total_tax": 28782
+}

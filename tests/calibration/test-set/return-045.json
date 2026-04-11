@@ -1,0 +1,187 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-045",
+  "filing_status": "hoh",
+  "taxpayer": {
+    "id": "person-tp-045",
+    "first_name": "Parker",
+    "last_name": "Mensah",
+    "ssn": "900-44-1315",
+    "dob": "1981-01-16",
+    "occupation": "Software Engineer"
+  },
+  "dependents": [
+    {
+      "id": "person-dep-045",
+      "first_name": "Parker",
+      "last_name": "Mensah",
+      "ssn": "901-66-1348",
+      "dob": "2011-01-16"
+    }
+  ],
+  "address": {
+    "line1": "1045 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "TX",
+    "zip": "90045",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 45",
+      "employer_ein": "99-1000045",
+      "employee": {
+        "id": "person-tp-045",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1315",
+        "dob": "1981-01-16",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 92000,
+      "box2_fed_withholding": 11040,
+      "box3_ss_wages": 92000,
+      "box4_ss_withholding": 5704,
+      "box5_medicare_wages": 92000,
+      "box6_medicare_withholding": 1334,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "TX",
+          "wages": 73600,
+          "withholding": 4600
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000045",
+      "recipient": {
+        "id": "person-tp-045",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1315",
+        "dob": "1981-01-16",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS45-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS45-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000045",
+      "recipient": {
+        "id": "person-tp-045",
+        "first_name": "Parker",
+        "last_name": "Mensah",
+        "ssn": "900-44-1315",
+        "dob": "1981-01-16",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [
+    {
+      "property_id": "rental-045",
+      "address": {
+        "line1": "2045 Rental Rd",
+        "city": "Rental City",
+        "state": "TX",
+        "zip": "90045",
+        "county": "Example"
+      },
+      "fair_rental_days": 365,
+      "personal_use_days": 0,
+      "related_party_rental": false,
+      "rents_received": 24000,
+      "expenses": {
+        "advertising": 0,
+        "auto_travel": 200,
+        "cleaning_maintenance": 900,
+        "commissions": 0,
+        "insurance": 1200,
+        "legal_professional": 200,
+        "management_fees": 2400,
+        "mortgage_interest": 11000,
+        "repairs": 1100,
+        "supplies": 250,
+        "taxes": 4200,
+        "utilities": 0,
+        "other": 0
+      },
+      "depreciation": {
+        "purchase_price": 285000,
+        "placed_in_service": "2021-05-01",
+        "depreciation_method": "MACRS_27.5",
+        "prior_year_depreciation": 41400,
+        "current_year_depreciation": 10364
+      }
+    }
+  ],
+  "hsa": [],
+  "state_returns": [
+    {
+      "state": "TX",
+      "residency": "resident",
+      "state_wages": 73600,
+      "state_withholding": 4600,
+      "ptet_election_eligible": false
+    }
+  ],
+  "prior_year": {
+    "tax_year": 2024,
+    "filing_status": "hoh",
+    "agi": 87000,
+    "total_tax": 13800,
+    "refund_or_owed": 1000,
+    "filed_date": "2025-03-15",
+    "prior_preparer_name": "Pat Daniels, CPA",
+    "prior_preparer_credential": "CPA",
+    "carryforwards": {
+      "capital_loss": 2500,
+      "passive_activity_loss": 1000
+    }
+  },
+  "agi": 92900,
+  "total_tax": 16722
+}

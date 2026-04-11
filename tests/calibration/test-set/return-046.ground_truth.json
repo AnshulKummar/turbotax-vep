@@ -1,0 +1,368 @@
+{
+  "case_id": "test-return-046",
+  "params": {
+    "index": 46,
+    "filing_status": "hoh",
+    "income_tier": "upper",
+    "wage_profile": "w2_plus_1099",
+    "state_mix": "single_il",
+    "has_rental": true,
+    "has_k1": false,
+    "has_rsu": true,
+    "has_hsa": false,
+    "has_wash_sale": true,
+    "has_iso": false,
+    "has_foreign": true,
+    "has_prior_year": true
+  },
+  "expected_finding_rule_ids": [
+    "amt-depreciation-003",
+    "amt-ftc-004",
+    "credit-ctc-001",
+    "depreciation-land-split-001",
+    "estimated-tax-annualized-004",
+    "estimated-tax-safe-harbor-110-001",
+    "estimated-tax-safe-harbor-90-002",
+    "estimated-tax-underpayment-003",
+    "ftc-form-1116-required-001",
+    "passive-469-agi-phaseout-001",
+    "passive-rep-consider-004",
+    "retirement-401k-headroom-003",
+    "retirement-ira-headroom-001",
+    "retirement-roth-phaseout-002",
+    "rsu-double-count-001",
+    "salt-prior-year-refund-003",
+    "wash-sale-code-w-001"
+  ],
+  "expected_findings": [
+    {
+      "finding_id": "finding-wash-sale-code-w-001-TS46-WASH-001_TS46-WASH-002",
+      "rule_id": "wash-sale-code-w-001",
+      "category": "wash_sale",
+      "severity": 4,
+      "irc_citation": "IRC §1091",
+      "pub_citation": "IRS Pub 550",
+      "summary": "2 1099-B lot(s) missing Code W on Form 8949 (disallowed loss $3,030)",
+      "detail": "The broker reported a wash sale loss disallowed amount on these lots, but Form 8949 column (f) does not carry Code W and column (g) does not add the disallowance back. IRC §1091 requires the disallowed loss to be tracked and added to the replacement-lot basis. This is a mechanical compliance error that routinely triggers IRS CP2000 notices because the IRS wash-sale computer match sees the broker-reported amount and expects it on the return.",
+      "affected_lines": [
+        "8949.row.TS46-WASH-001",
+        "8949.row.TS46-WASH-002"
+      ],
+      "dollar_impact": {
+        "estimate": 758,
+        "low": 455,
+        "high": 1061
+      },
+      "audit_risk_delta": 0.35
+    },
+    {
+      "finding_id": "finding-rsu-double-count-001-TS46-RSU-001",
+      "rule_id": "rsu-double-count-001",
+      "category": "rsu",
+      "severity": 5,
+      "irc_citation": "IRC §83(a)",
+      "pub_citation": "IRS Pub 525",
+      "summary": "1 RSU vest lot(s) with basis near $0 — likely double-counted",
+      "detail": "The W-2 has a Box 12 code V (RSU / NQSO income) and the 1099-B has same-day sale-to-cover lots with a cost basis near zero. RSU vest income is already included in W-2 Box 1 wages; the 1099-B lot cost basis should equal the Box 1 inclusion amount, not zero. Leaving the basis at zero double-counts the vest as both wage income and a capital gain. This is the single most common mechanically detectable error in the public TurboTax record — a $3,200 refund delta is in Intuit's own public record.",
+      "affected_lines": [
+        "8949.row.TS46-RSU-001"
+      ],
+      "dollar_impact": {
+        "estimate": 5760,
+        "low": 4608,
+        "high": 6912
+      },
+      "audit_risk_delta": -0.2
+    },
+    {
+      "finding_id": "finding-passive-469-agi-phaseout-001-global",
+      "rule_id": "passive-469-agi-phaseout-001",
+      "category": "passive_activity_loss",
+      "severity": 5,
+      "irc_citation": "IRC §469(i)",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Rental loss $7,814 disallowed — AGI $215,900 exceeds phaseout",
+      "detail": "IRC §469(i) allows up to $25,000 of rental real estate losses against active income for taxpayers who actively participate. The allowance phases out between $100,000 and $150,000 AGI, and is fully disallowed at $150,000+. This return's AGI is $215,900, so the rental loss is fully suspended and carried forward under §469(b).",
+      "affected_lines": [
+        "1040.sch1.line.5",
+        "8582.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 2500,
+        "low": 2000,
+        "high": 3000
+      },
+      "audit_risk_delta": -0.3
+    },
+    {
+      "finding_id": "finding-passive-rep-consider-004-rental-046",
+      "rule_id": "passive-rep-consider-004",
+      "category": "passive_activity_loss",
+      "severity": 2,
+      "irc_citation": "IRC §469(c)(7)",
+      "pub_citation": "IRS Pub 925",
+      "summary": "Consider real-estate-professional status on this rental",
+      "detail": "The rental is in service for most of the year. If the taxpayer or spouse spent more than 750 hours on real property trades or businesses and materially participated, rental losses become nonpassive and are not subject to §469 limits.",
+      "affected_lines": [
+        "8582",
+        "schE"
+      ],
+      "dollar_impact": {
+        "estimate": 1000,
+        "low": 500,
+        "high": 1500
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-depreciation-land-split-001-rental-046",
+      "rule_id": "depreciation-land-split-001",
+      "category": "depreciation",
+      "severity": 5,
+      "irc_citation": "IRC §168(b)",
+      "pub_citation": "IRS Pub 527",
+      "summary": "Land not excluded from depreciable basis on Rental City rental",
+      "detail": "IRS Publication 527 requires residential rental depreciation to be computed on the building value only; land is never depreciable. This property's depreciation record has no land_value / building_value split, so the full purchase price is being depreciated. Using a conservative 25% land allocation, the current year over-deduction is about $2,591. Pull Example County assessor records for the actual split before filing.",
+      "affected_lines": [
+        "schE.line.18",
+        "4562"
+      ],
+      "dollar_impact": {
+        "estimate": 829,
+        "low": 580,
+        "high": 1078
+      },
+      "audit_risk_delta": -0.25
+    },
+    {
+      "finding_id": "finding-ftc-form-1116-required-001-global",
+      "rule_id": "ftc-form-1116-required-001",
+      "category": "foreign_tax_credit",
+      "severity": 3,
+      "irc_citation": "IRC §904(k)",
+      "pub_citation": "IRS Pub 514",
+      "summary": "Foreign tax $480 exceeds $300 — Form 1116 required",
+      "detail": "Foreign tax paid exceeds the election threshold for claiming the credit without Form 1116. Form 1116 is required and the credit may be limited.",
+      "affected_lines": [
+        "1040.line.1",
+        "1116"
+      ],
+      "dollar_impact": {
+        "estimate": 48,
+        "low": 24,
+        "high": 72
+      },
+      "audit_risk_delta": 0.1
+    },
+    {
+      "finding_id": "finding-salt-prior-year-refund-003-global",
+      "rule_id": "salt-prior-year-refund-003",
+      "category": "salt_cap",
+      "severity": 2,
+      "irc_citation": "IRC §111",
+      "pub_citation": "Pub 525",
+      "summary": "Check §111 taxable state refund worksheet",
+      "detail": "A prior year state refund is only taxable to the extent it produced a federal tax benefit (the §111 tax benefit rule). If prior year was at the SALT cap, the refund is usually NOT taxable. Do the worksheet.",
+      "affected_lines": [
+        "1040.sch1.line.1"
+      ],
+      "dollar_impact": {
+        "estimate": 250,
+        "low": 125,
+        "high": 375
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-retirement-ira-headroom-001-person-tp-046",
+      "rule_id": "retirement-ira-headroom-001",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §219(b)",
+      "pub_citation": "Pub 590-A",
+      "summary": "Reese has up to $7,000 of TY2025 IRA headroom",
+      "detail": "Reese is 43 years old; the TY2025 IRA contribution limit is $7,000. Deductibility may phase out at high AGI for traditional IRA if covered by an employer plan; Roth IRA phases out at $236K–$246K MFJ.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 2240,
+        "low": 1792,
+        "high": 2688
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-roth-phaseout-002-global",
+      "rule_id": "retirement-roth-phaseout-002",
+      "category": "retirement_contribution",
+      "severity": 2,
+      "irc_citation": "IRC §408A(c)(3)",
+      "pub_citation": "Pub 590-A",
+      "summary": "AGI above Roth IRA phaseout — consider backdoor Roth",
+      "detail": "AGI $215,900 is above the single Roth IRA phaseout ceiling ($165,000). Direct Roth contributions are not allowed. Consider the backdoor Roth strategy (nondeductible traditional IRA contribution + Roth conversion) if there is no pre-tax IRA balance to trigger pro-rata.",
+      "affected_lines": [
+        "1040.sch1.line.20"
+      ],
+      "dollar_impact": {
+        "estimate": 500,
+        "low": 400,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-retirement-401k-headroom-003-person-tp-046",
+      "rule_id": "retirement-401k-headroom-003",
+      "category": "retirement_contribution",
+      "severity": 3,
+      "irc_citation": "IRC §402(g)",
+      "pub_citation": "Pub 575",
+      "summary": "Reese: $9,500 of 401k/403b headroom",
+      "detail": "Reese has contributed $14,000 toward the TY2025 §402(g) limit of $23,500. Another $9,500 can still be deferred before year end.",
+      "affected_lines": [
+        "w2.box12.D",
+        "w2.box12.E"
+      ],
+      "dollar_impact": {
+        "estimate": 3040,
+        "low": 2432,
+        "high": 3648
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-credit-ctc-001-global",
+      "rule_id": "credit-ctc-001",
+      "category": "credit_eligibility",
+      "severity": 3,
+      "irc_citation": "IRC §24",
+      "pub_citation": "Pub 972",
+      "summary": "CTC phased to $1,200 at AGI $215,900",
+      "detail": "Child Tax Credit phases out $50 per $1,000 of AGI above the phaseout start ($200,000 single).",
+      "affected_lines": [
+        "1040.line.19"
+      ],
+      "dollar_impact": {
+        "estimate": 1200,
+        "low": 960,
+        "high": 1440
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-amt-depreciation-003-global",
+      "rule_id": "amt-depreciation-003",
+      "category": "amt",
+      "severity": 2,
+      "irc_citation": "IRC §56(a)(1)",
+      "pub_citation": "Pub 946",
+      "summary": "MACRS depreciation timing differences can create AMT adjustments",
+      "detail": "Residential rental (27.5-year) and commercial (39-year) MACRS use straight-line which is identical for regular and AMT, so no adjustment — but personal property (5/7-year) uses 200% DB for regular and 150% DB for AMT. Check any §179 / personal-property depreciation for an addback.",
+      "affected_lines": [
+        "6251.line.2l"
+      ],
+      "dollar_impact": {
+        "estimate": 300,
+        "low": 120,
+        "high": 480
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-amt-ftc-004-global",
+      "rule_id": "amt-ftc-004",
+      "category": "amt",
+      "severity": 2,
+      "irc_citation": "IRC §59(a)",
+      "pub_citation": "Pub 514",
+      "summary": "Compute AMT foreign tax credit separately on Form 1116",
+      "detail": "At high income with foreign tax paid, AMT requires a parallel Form 1116 using AMT sourcing rules under §59(a). The regular FTC and AMT FTC are often different.",
+      "affected_lines": [
+        "6251.line.8"
+      ],
+      "dollar_impact": {
+        "estimate": 150,
+        "low": 75,
+        "high": 225
+      },
+      "audit_risk_delta": 0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-110-001-global",
+      "rule_id": "estimated-tax-safe-harbor-110-001",
+      "category": "estimated_tax",
+      "severity": 4,
+      "irc_citation": "IRC §6654(d)(1)(C)",
+      "pub_citation": "Pub 505",
+      "summary": "Underpayment: need $35,475 withheld for 110% safe harbor",
+      "detail": "Prior year AGI exceeded $150,000, so the §6654 safe harbor requires 110% of prior year total tax ($35,475) to be paid via withholding or quarterly estimates. Currently $25,800 is withheld; consider a Q4 estimated payment or increased withholding of $9,675 to avoid the §6654 penalty.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 774,
+        "low": 464,
+        "high": 1084
+      },
+      "audit_risk_delta": -0.1
+    },
+    {
+      "finding_id": "finding-estimated-tax-safe-harbor-90-002-global",
+      "rule_id": "estimated-tax-safe-harbor-90-002",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654(d)(1)(B)",
+      "pub_citation": "Pub 505",
+      "summary": "Need $34,976 withheld to hit 90% current year safe harbor",
+      "detail": "The alternative safe harbor is 90% of current year tax. This is usually only easier to hit than 110% prior year if income dropped.",
+      "affected_lines": [
+        "2210.part1"
+      ],
+      "dollar_impact": {
+        "estimate": 200,
+        "low": 100,
+        "high": 300
+      },
+      "audit_risk_delta": -0.05
+    },
+    {
+      "finding_id": "finding-estimated-tax-underpayment-003-global",
+      "rule_id": "estimated-tax-underpayment-003",
+      "category": "estimated_tax",
+      "severity": 3,
+      "irc_citation": "IRC §6654",
+      "pub_citation": "Pub 505",
+      "summary": "Estimated §6654 penalty ~$367",
+      "detail": "Based on a shortfall of $9,176 and the TY2025 applicable interest rate of ~8%, the underpayment penalty is approximately $367. Consider the annualized income method (Schedule AI) if income was lumpy across quarters.",
+      "affected_lines": [
+        "2210"
+      ],
+      "dollar_impact": {
+        "estimate": 367,
+        "low": 220,
+        "high": 514
+      },
+      "audit_risk_delta": 0
+    },
+    {
+      "finding_id": "finding-estimated-tax-annualized-004-global",
+      "rule_id": "estimated-tax-annualized-004",
+      "category": "estimated_tax",
+      "severity": 2,
+      "irc_citation": "IRC §6654(d)(2)",
+      "pub_citation": "Pub 505",
+      "summary": "Use Schedule AI to reduce §6654 penalty on lumpy income",
+      "detail": "Income arrived unevenly (RSU vest, K-1 distribution, or both). Form 2210 Schedule AI lets you annualize quarterly income so early quarters with little income do not generate a penalty.",
+      "affected_lines": [
+        "2210.schAI"
+      ],
+      "dollar_impact": {
+        "estimate": 400,
+        "low": 200,
+        "high": 600
+      },
+      "audit_risk_delta": 0
+    }
+  ]
+}

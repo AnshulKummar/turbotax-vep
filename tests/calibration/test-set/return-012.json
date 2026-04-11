@@ -1,0 +1,203 @@
+{
+  "tax_year": 2025,
+  "case_id": "test-return-012",
+  "filing_status": "mfs",
+  "taxpayer": {
+    "id": "person-tp-012",
+    "first_name": "Casey",
+    "last_name": "Nguyen",
+    "ssn": "900-44-1084",
+    "dob": "1984-04-15",
+    "occupation": "Software Engineer"
+  },
+  "spouse": {
+    "id": "person-sp-012",
+    "first_name": "Quinn",
+    "last_name": "Sato",
+    "ssn": "902-55-1095",
+    "dob": "1984-04-15",
+    "occupation": "Teacher"
+  },
+  "dependents": [],
+  "address": {
+    "line1": "1012 Sample Avenue",
+    "city": "Synthetic City",
+    "state": "CA",
+    "zip": "90012",
+    "county": "Example"
+  },
+  "w2s": [
+    {
+      "employer_name": "Example Employer 12",
+      "employer_ein": "99-1000012",
+      "employee": {
+        "id": "person-tp-012",
+        "first_name": "Casey",
+        "last_name": "Nguyen",
+        "ssn": "900-44-1084",
+        "dob": "1984-04-15",
+        "occupation": "Software Engineer"
+      },
+      "box1_wages": 38500,
+      "box2_fed_withholding": 4620,
+      "box3_ss_wages": 38500,
+      "box4_ss_withholding": 2387,
+      "box5_medicare_wages": 38500,
+      "box6_medicare_withholding": 558,
+      "box12": [
+        {
+          "code": "V",
+          "amount": 18000
+        },
+        {
+          "code": "D",
+          "amount": 14000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "CA",
+          "wages": 30800,
+          "withholding": 1925
+        },
+        {
+          "state": "WA",
+          "wages": 7700,
+          "withholding": 385
+        }
+      ]
+    },
+    {
+      "employer_name": "Public School District 12",
+      "employer_ein": "99-2000012",
+      "employee": {
+        "id": "person-sp-012",
+        "first_name": "Quinn",
+        "last_name": "Sato",
+        "ssn": "902-55-1095",
+        "dob": "1984-04-15",
+        "occupation": "Teacher"
+      },
+      "box1_wages": 68000,
+      "box2_fed_withholding": 7900,
+      "box3_ss_wages": 68000,
+      "box4_ss_withholding": 4216,
+      "box5_medicare_wages": 68000,
+      "box6_medicare_withholding": 986,
+      "box12": [
+        {
+          "code": "E",
+          "amount": 6000
+        }
+      ],
+      "box14": [],
+      "state_wages": [
+        {
+          "state": "CA",
+          "wages": 68000,
+          "withholding": 3300
+        }
+      ]
+    }
+  ],
+  "form_1099_b": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000012",
+      "recipient": {
+        "id": "person-tp-012",
+        "first_name": "Casey",
+        "last_name": "Nguyen",
+        "ssn": "900-44-1084",
+        "dob": "1984-04-15",
+        "occupation": "Software Engineer"
+      },
+      "lots": [
+        {
+          "lot_id": "TS12-LT-001",
+          "description": "200 sh VTI",
+          "date_acquired": "2021-06-10",
+          "date_sold": "2025-09-05",
+          "proceeds": 52000,
+          "cost_basis": 38000,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS12-WASH-001",
+          "description": "100 sh EXMP ETF",
+          "date_acquired": "2024-11-02",
+          "date_sold": "2025-01-14",
+          "proceeds": 4320,
+          "cost_basis": 5920,
+          "wash_sale_loss_disallowed": 1600,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS12-WASH-002",
+          "description": "50 sh SYNT Corp",
+          "date_acquired": "2024-12-18",
+          "date_sold": "2025-02-01",
+          "proceeds": 6460,
+          "cost_basis": 7890,
+          "wash_sale_loss_disallowed": 1430,
+          "code": null,
+          "reported_to_irs": true
+        },
+        {
+          "lot_id": "TS12-RSU-001",
+          "description": "100 sh RSU vest",
+          "date_acquired": "2025-03-15",
+          "date_sold": "2025-03-15",
+          "proceeds": 18000,
+          "cost_basis": 0,
+          "code": null,
+          "reported_to_irs": true
+        }
+      ]
+    }
+  ],
+  "form_1099_div": [
+    {
+      "payer_name": "Synthetic Brokerage LLC",
+      "payer_ein": "99-3000012",
+      "recipient": {
+        "id": "person-tp-012",
+        "first_name": "Casey",
+        "last_name": "Nguyen",
+        "ssn": "900-44-1084",
+        "dob": "1984-04-15",
+        "occupation": "Software Engineer"
+      },
+      "ordinary_dividends": 2400,
+      "qualified_dividends": 1900,
+      "capital_gain_distributions": 0,
+      "foreign_tax_paid": 0
+    }
+  ],
+  "k1s": [],
+  "form_1098": [],
+  "rental_properties": [],
+  "hsa": [],
+  "state_returns": [
+    {
+      "state": "CA",
+      "residency": "resident",
+      "state_wages": 30800,
+      "state_withholding": 1925,
+      "ptet_election_eligible": false
+    },
+    {
+      "state": "WA",
+      "residency": "non_resident",
+      "workdays_in_state": 22,
+      "state_wages": 7700,
+      "state_withholding": 385,
+      "ptet_election_eligible": false
+    }
+  ],
+  "agi": 108900,
+  "total_tax": 19602
+}
