@@ -1,0 +1,105 @@
+{
+  "$schema_version": "1.0.0",
+  "description": "Golden recommendations that must appear on the Mitchell hero return. Used by Agent 2's recommender as a ground-truth fixture for tests and by Agent 5's evaluator as a minimum-coverage oracle. Each entry references a real rule id from src/lib/rules/index.ts and an expected dollar impact range, goal affinity, and severity.",
+  "recommendations": [
+    {
+      "id": "golden-001",
+      "rule_id": "rsu-double-count-001",
+      "headline": "Fix RSU double-count on Contoso 2025-05 vest lot",
+      "expected_dollar_impact_min": 5000,
+      "expected_dollar_impact_max": 15000,
+      "expected_goals": ["maximize_refund", "minimize_audit_risk"],
+      "expected_severity": 5,
+      "must_appear": true,
+      "rationale": "Olivia's 2025-05-15 RSU vest appears in W-2 box 12 code V AND as zero-basis same-day sale lots on the Contoso broker 1099-B. Absent the basis step-up, the RSU compensation is taxed twice. This is the canonical TurboTax RSU bug and the single highest-impact finding on the return."
+    },
+    {
+      "id": "golden-002",
+      "rule_id": "wash-sale-code-w-001",
+      "headline": "Apply wash sale Code W to three disallowed-loss lots",
+      "expected_dollar_impact_min": 800,
+      "expected_dollar_impact_max": 2500,
+      "expected_goals": ["minimize_audit_risk", "harvest_losses"],
+      "expected_severity": 5,
+      "must_appear": true,
+      "rationale": "Three 1099-B lots report wash_sale_loss_disallowed totaling $4,180 but the lot code field is null. IRS matching will bounce the return unless Schedule D adjustments pick up Code W and disallow the $4,180. This also preserves the correct basis step-up on the replacement shares."
+    },
+    {
+      "id": "golden-003",
+      "rule_id": "hsa-8889-reconcile-001",
+      "headline": "Raise Mitchell HSA Form 8889 line 6 to the TY2025 family limit",
+      "expected_dollar_impact_min": 50,
+      "expected_dollar_impact_max": 400,
+      "expected_goals": ["maximize_refund", "optimize_next_year"],
+      "expected_severity": 3,
+      "must_appear": true,
+      "rationale": "Form 8889 line 6 is populated with $8,300, the TY2024 family contribution limit. TY2025 raises the family limit to $8,550. Correcting the limit preserves the above-the-line deduction and avoids a future amendment."
+    },
+    {
+      "id": "golden-004",
+      "rule_id": "depreciation-land-split-001",
+      "headline": "Split Will County rental purchase price between land and building",
+      "expected_dollar_impact_min": 1500,
+      "expected_dollar_impact_max": 5000,
+      "expected_goals": ["maximize_refund", "minimize_audit_risk"],
+      "expected_severity": 5,
+      "must_appear": true,
+      "rationale": "The Will County rental was depreciated on the full $310K purchase price without a documented land/building allocation. IRS audit positions require an explicit allocation (typically using county assessor ratios). Allocating ~25% to land reduces the depreciable basis and exposes a prior-year adjustment."
+    },
+    {
+      "id": "golden-005",
+      "rule_id": "passive-469-agi-phaseout-001",
+      "headline": "IRC §469 active participant loss fully phased out at Mitchell AGI",
+      "expected_dollar_impact_min": 200,
+      "expected_dollar_impact_max": 800,
+      "expected_goals": ["minimize_audit_risk", "optimize_next_year"],
+      "expected_severity": 3,
+      "must_appear": true,
+      "rationale": "Mitchell AGI of $325,850 is well above the $150K ceiling for the §469(i) $25,000 active-participant rental loss allowance. The rental loss is fully suspended and must be tracked as a passive activity loss carryforward to 2026."
+    },
+    {
+      "id": "golden-006",
+      "rule_id": "salt-cap-tcja-2025-001",
+      "headline": "SALT cap confirmation — prior $10K limit no longer applies",
+      "expected_dollar_impact_min": 300,
+      "expected_dollar_impact_max": 1500,
+      "expected_goals": ["maximize_refund", "optimize_next_year"],
+      "expected_severity": 4,
+      "must_appear": true,
+      "rationale": "TY2025 raises the SALT cap to $40,000 MFJ under the permanent TCJA extension. Mitchell's combined state + property tax of ~$23K+ now flows through uncapped, producing itemized deduction headroom that was unavailable at the prior $10K limit."
+    },
+    {
+      "id": "golden-007",
+      "rule_id": "ptet-election-il-001",
+      "headline": "Evaluate Illinois PTET election on Blackwood Trading K-1",
+      "expected_dollar_impact_min": 150,
+      "expected_dollar_impact_max": 1200,
+      "expected_goals": ["maximize_refund", "minimize_audit_risk"],
+      "expected_severity": 4,
+      "must_appear": true,
+      "rationale": "Blackwood Trading Partners LP issues a K-1 and the Illinois slice is flagged ptet_election_eligible: true. Electing PTET converts the owner's Illinois tax to an entity-level deduction, effectively uncapping that portion of SALT. Coordinate with the partnership before its state deadline."
+    },
+    {
+      "id": "golden-008",
+      "rule_id": "retirement-401k-headroom-003",
+      "headline": "Olivia has $9,500 of remaining 401(k) elective deferral headroom",
+      "expected_dollar_impact_min": 1500,
+      "expected_dollar_impact_max": 4500,
+      "expected_goals": ["optimize_retirement", "optimize_next_year", "maximize_refund"],
+      "expected_severity": 3,
+      "must_appear": true,
+      "rationale": "Olivia's W-2 box 12 code D shows $14,000 of 401(k) deferrals against the TY2025 §402(g) limit of $23,500. Increasing her last two paychecks to max the deferral saves federal tax at the marginal rate and reduces TY2025 AGI."
+    },
+    {
+      "id": "golden-009",
+      "rule_id": "ftc-form-1116-required-001",
+      "headline": "Form 1116 required for the Faraday Emerging Markets foreign tax credit",
+      "expected_dollar_impact_min": 50,
+      "expected_dollar_impact_max": 300,
+      "expected_goals": ["minimize_audit_risk", "optimize_next_year"],
+      "expected_severity": 3,
+      "must_appear": false,
+      "rationale": "The Faraday 1099-DIV reports $260 of foreign tax paid. MFJ can elect the $600-or-less simplified FTC without Form 1116, so this is advisory only — Agent 2 may suppress it in favor of the election."
+    }
+  ]
+}
