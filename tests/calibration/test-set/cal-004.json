@@ -1,0 +1,13 @@
+{
+  "return_id": "cal-004",
+  "case_id": "case-cal-004",
+  "label": "Multi-state W-2 + foreign tax credit",
+  "findings": [
+    { "finding_id": "f-1", "rule_id": "foreign-tax-credit-001", "predicted_confidence": 0.91, "is_correct": true },
+    { "finding_id": "f-2", "rule_id": "foreign-tax-credit-002", "predicted_confidence": 0.78, "is_correct": true },
+    { "finding_id": "f-3", "rule_id": "multi-state-credit-001", "predicted_confidence": 0.56, "is_correct": true },
+    { "finding_id": "f-4", "rule_id": "salt-cap-tcja-2025-001", "predicted_confidence": 0.47, "is_correct": false },
+    { "finding_id": "f-5", "rule_id": "amt-trigger-check-002", "predicted_confidence": 0.33, "is_correct": false },
+    { "finding_id": "f-6", "rule_id": "credit-eligibility-003", "predicted_confidence": 0.15, "is_correct": false }
+  ]
+}

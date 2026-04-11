@@ -1,0 +1,14 @@
+{
+  "return_id": "cal-001",
+  "case_id": "case-cal-001",
+  "label": "RSU + wash sale happy path",
+  "findings": [
+    { "finding_id": "f-1", "rule_id": "rsu-double-count-001", "predicted_confidence": 0.92, "is_correct": true },
+    { "finding_id": "f-2", "rule_id": "wash-sale-code-w-001", "predicted_confidence": 0.88, "is_correct": true },
+    { "finding_id": "f-3", "rule_id": "hsa-8889-reconcile-001", "predicted_confidence": 0.72, "is_correct": true },
+    { "finding_id": "f-4", "rule_id": "depreciation-land-split-001", "predicted_confidence": 0.55, "is_correct": true },
+    { "finding_id": "f-5", "rule_id": "passive-469-agi-phaseout-001", "predicted_confidence": 0.35, "is_correct": false },
+    { "finding_id": "f-6", "rule_id": "salt-cap-tcja-2025-001", "predicted_confidence": 0.21, "is_correct": false },
+    { "finding_id": "f-7", "rule_id": "ptet-election-il-001", "predicted_confidence": 0.08, "is_correct": false }
+  ]
+}

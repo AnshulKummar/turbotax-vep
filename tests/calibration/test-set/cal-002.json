@@ -1,0 +1,13 @@
+{
+  "return_id": "cal-002",
+  "case_id": "case-cal-002",
+  "label": "Simple W-2 with retirement headroom",
+  "findings": [
+    { "finding_id": "f-1", "rule_id": "retirement-401k-headroom-003", "predicted_confidence": 0.95, "is_correct": true },
+    { "finding_id": "f-2", "rule_id": "retirement-ira-headroom-001", "predicted_confidence": 0.84, "is_correct": true },
+    { "finding_id": "f-3", "rule_id": "salt-cap-tcja-2025-001", "predicted_confidence": 0.63, "is_correct": true },
+    { "finding_id": "f-4", "rule_id": "credit-ctc-eligible-001", "predicted_confidence": 0.48, "is_correct": false },
+    { "finding_id": "f-5", "rule_id": "estimated-tax-safe-harbor-001", "predicted_confidence": 0.29, "is_correct": false },
+    { "finding_id": "f-6", "rule_id": "amt-trigger-check-001", "predicted_confidence": 0.12, "is_correct": false }
+  ]
+}
