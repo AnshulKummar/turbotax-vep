@@ -68,16 +68,16 @@ export default function LandingPage() {
 
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
-              href="/tour"
+              href="/start"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-[#050508] shadow-lg transition hover:brightness-110"
             >
-              Watch the guided tour &rarr;
+              Try the customer flow &rarr;
             </Link>
             <Link
-              href="/start"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]"
+              href="/tour"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-5 py-3 text-sm font-semibold text-violet-200 transition hover:bg-violet-500/20"
             >
-              Try the customer flow
+              Watch the guided tour
             </Link>
             <Link
               href="/workbench"

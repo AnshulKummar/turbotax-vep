@@ -5,6 +5,11 @@
  * auto-advances through the demo script steps. The iframe navigates
  * to pre-set URLs for each step; the overlay shows narration captions
  * with act labels, progress bar, and playback controls.
+ *
+ * Audio narration via the Web Speech API (SpeechSynthesis). Each step's
+ * caption text is read aloud automatically. The step timer is driven by
+ * the speech duration rather than a fixed clock — whichever finishes
+ * last (speech or minimum duration) triggers the advance.
  */
 "use client";
 
@@ -18,17 +23,89 @@ const ACT_COLORS: Record<string, string> = {
   emerald: "bg-emerald-500/20 border-emerald-500/40 text-emerald-200",
 };
 
+// ── TTS helpers ────────────────────────────────────────────────────────
+function getTTSVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices();
+  // Prefer a natural-sounding English voice
+  const preferred = [
+    "Google UK English Male",
+    "Google UK English Female",
+    "Google US English",
+    "Microsoft David",
+    "Microsoft Zira",
+    "Samantha",
+    "Daniel",
+    "Alex",
+  ];
+  for (const name of preferred) {
+    const match = voices.find((v) => v.name.includes(name));
+    if (match) return match;
+  }
+  // Fallback: first English voice
+  return voices.find((v) => v.lang.startsWith("en")) ?? voices[0] ?? null;
+}
+
+function speakText(
+  text: string,
+  onEnd: () => void,
+  rate = 1.05,
+): SpeechSynthesisUtterance | null {
+  if (typeof window === "undefined" || !window.speechSynthesis) return null;
+
+  // Cancel any in-progress speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = rate;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+  const voice = getTTSVoice();
+  if (voice) utterance.voice = voice;
+  utterance.onend = onEnd;
+  utterance.onerror = onEnd;
+
+  window.speechSynthesis.speak(utterance);
+  return utterance;
+}
+
+function cancelSpeech() {
+  if (typeof window !== "undefined" && window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+// ── Component ──────────────────────────────────────────────────────────
+
 export function TourPlayer() {
   const [currentStep, setCurrentStep] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [elapsed, setElapsed] = useState(0);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [speechDone, setSpeechDone] = useState(false);
+  const [voicesReady, setVoicesReady] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const step = TOUR_STEPS[currentStep];
   const totalSteps = TOUR_STEPS.length;
   const isLastStep = currentStep === totalSteps - 1;
+
+  // ── Load voices (async on some browsers) ───────────────────────────
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const check = () => {
+      if (window.speechSynthesis.getVoices().length > 0) {
+        setVoicesReady(true);
+      }
+    };
+    check();
+    window.speechSynthesis.addEventListener("voiceschanged", check);
+    return () =>
+      window.speechSynthesis.removeEventListener("voiceschanged", check);
+  }, []);
 
   // ── Navigate iframe when step changes ──────────────────────────────
   useEffect(() => {
@@ -40,19 +117,53 @@ export function TourPlayer() {
         const currentSearch =
           iframeRef.current.contentWindow?.location?.search ?? "";
         const currentFull = currentPath + currentSearch;
-        // Only navigate if the URL actually changed
         if (currentFull !== target) {
           iframeRef.current.contentWindow?.location.replace(target);
         }
       } catch {
-        // Cross-origin fallback: set src attribute
         iframeRef.current.src = target;
       }
     }
     setElapsed(0);
+    setSpeechDone(false);
   }, [currentStep, step.path]);
 
-  // ── Auto-advance timer ─────────────────────────────────────────────
+  // ── Speak current step caption ─────────────────────────────────────
+  useEffect(() => {
+    if (!playing || !audioEnabled || !voicesReady) {
+      cancelSpeech();
+      return;
+    }
+
+    // Combine title + body for narration
+    const text = `${step.title}. ${step.body}`;
+    utteranceRef.current = speakText(text, () => {
+      setSpeechDone(true);
+    });
+
+    return () => {
+      cancelSpeech();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, playing, audioEnabled, voicesReady]);
+
+  // ── Pause/resume speech when play state changes ────────────────────
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (!audioEnabled) return;
+
+    if (playing) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    } else {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+      }
+    }
+  }, [playing, audioEnabled]);
+
+  // ── Auto-advance timer (waits for speech to finish) ────────────────
   useEffect(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -65,12 +176,17 @@ export function TourPlayer() {
       setElapsed((prev) => {
         const next = prev + 0.1;
         if (next >= step.duration) {
-          if (!isLastStep) {
-            setCurrentStep((s) => s + 1);
-          } else {
-            setPlaying(false);
+          // Only advance if speech is also done (or audio is off)
+          if (speechDone || !audioEnabled) {
+            if (!isLastStep) {
+              setCurrentStep((s) => s + 1);
+            } else {
+              setPlaying(false);
+            }
+            return 0;
           }
-          return 0;
+          // Timer done but speech still going — hold at max
+          return step.duration;
         }
         return next;
       });
@@ -79,10 +195,23 @@ export function TourPlayer() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, step.duration, isLastStep, currentStep]);
+  }, [playing, step.duration, isLastStep, currentStep, speechDone, audioEnabled]);
+
+  // ── Advance when speech finishes (if timer already done) ───────────
+  useEffect(() => {
+    if (!speechDone || !playing) return;
+    if (elapsed >= step.duration && step.duration > 0) {
+      if (!isLastStep) {
+        setCurrentStep((s) => s + 1);
+      } else {
+        setPlaying(false);
+      }
+    }
+  }, [speechDone, elapsed, step.duration, playing, isLastStep]);
 
   // ── Controls ───────────────────────────────────────────────────────
   const goNext = useCallback(() => {
+    cancelSpeech();
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
       setElapsed(0);
@@ -90,6 +219,7 @@ export function TourPlayer() {
   }, [isLastStep]);
 
   const goPrev = useCallback(() => {
+    cancelSpeech();
     if (currentStep > 0) {
       setCurrentStep((s) => s - 1);
       setElapsed(0);
@@ -98,6 +228,13 @@ export function TourPlayer() {
 
   const togglePlay = useCallback(() => {
     setPlaying((p) => !p);
+  }, []);
+
+  const toggleAudio = useCallback(() => {
+    setAudioEnabled((prev) => {
+      if (prev) cancelSpeech();
+      return !prev;
+    });
   }, []);
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────
@@ -112,11 +249,14 @@ export function TourPlayer() {
       } else if (e.key === "p" || e.key === "k") {
         e.preventDefault();
         togglePlay();
+      } else if (e.key === "m") {
+        e.preventDefault();
+        toggleAudio();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [goNext, goPrev, togglePlay]);
+  }, [goNext, goPrev, togglePlay, toggleAudio]);
 
   // ── Progress percentage for current step ───────────────────────────
   const stepProgress =
@@ -226,6 +366,33 @@ export function TourPlayer() {
                 <path d="M5 2l5 5-5 5" />
               </svg>
             </button>
+
+            {/* Audio toggle */}
+            <div className="mx-1 h-5 w-px bg-white/10" />
+            <button
+              type="button"
+              onClick={toggleAudio}
+              className={`rounded-md border p-1.5 transition hover:bg-white/[0.06] ${
+                audioEnabled
+                  ? "border-violet-500/40 text-violet-200"
+                  : "border-white/10 text-[var(--muted-foreground)]"
+              }`}
+              aria-label={audioEnabled ? "Mute narration" : "Enable narration"}
+              title={audioEnabled ? "Mute narration" : "Enable narration"}
+            >
+              {audioEnabled ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 5h2l3-3v10L4 9H2a1 1 0 01-1-1V6a1 1 0 011-1z" />
+                  <path d="M10 4a4 4 0 010 6" />
+                  <path d="M12 2a7 7 0 010 10" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 5h2l3-3v10L4 9H2a1 1 0 01-1-1V6a1 1 0 011-1z" />
+                  <path d="M10 4l4 6M14 4l-4 6" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* Caption */}
@@ -264,7 +431,9 @@ export function TourPlayer() {
             <span className="rounded bg-white/[0.06] px-1 py-0.5 font-mono">&larr;</span>{" "}
             prev &middot;{" "}
             <span className="rounded bg-white/[0.06] px-1 py-0.5 font-mono">P</span>{" "}
-            play/pause
+            play/pause &middot;{" "}
+            <span className="rounded bg-white/[0.06] px-1 py-0.5 font-mono">M</span>{" "}
+            mute/unmute
           </p>
         </div>
       </div>
