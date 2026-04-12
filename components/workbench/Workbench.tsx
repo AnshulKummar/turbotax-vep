@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type {
   AuditEvent,
+  Goal,
   LineId,
   PreWorkResponse,
   Recommendation,
@@ -35,18 +37,43 @@ import {
   fetchWhatAISaw,
 } from "./lib/api";
 
+export interface WorkbenchProps {
+  /**
+   * Optional goal vector pre-loaded by a Sprint 2 public-mode server
+   * component (see `/workbench?intake=<id>`). If omitted, the component
+   * falls back to the baked-in Mitchell fixture.
+   */
+  initialGoals?: Goal[];
+  /**
+   * Optional recommendations pre-computed on the server. When present the
+   * component uses them verbatim and skips the client-side fetch fallback
+   * so the goal-mix re-ranking is visible on first paint.
+   */
+  initialRecommendations?: Recommendation[];
+  /** If true, render a "Try different goals" CTA that links to /intake. */
+  showIntakeCta?: boolean;
+}
+
 /**
  * Top-level composed Expert Workbench.
  *
- * - Starts by hydrating from local fixtures so the UI always renders.
+ * - Starts by hydrating from props (public mode) or local fixtures
+ *   (Sprint 1 default) so the UI always renders.
  * - In parallel, attempts live fetches from Agent 2, 3, 5 routes and
- *   replaces state when the responses come back.
+ *   replaces state when the responses come back — but only for the panels
+ *   the server didn't already hydrate.
  */
-export function Workbench() {
+export function Workbench({
+  initialGoals,
+  initialRecommendations,
+  showIntakeCta = false,
+}: WorkbenchProps = {}) {
+  const seededFromServer = Boolean(initialRecommendations);
+
   const [prework, setPrework] =
     useState<PreWorkResponse>(mitchellPreWorkFixture);
   const [recommendations, setRecommendations] = useState<Recommendation[]>(
-    mitchellRecommendationsFixture,
+    initialRecommendations ?? mitchellRecommendationsFixture,
   );
   const [auditEvents, setAuditEvents] =
     useState<AuditEvent[]>(auditTrailFixture);
@@ -62,22 +89,33 @@ export function Workbench() {
   } | null>(null);
 
   // Live fetches run in parallel; silent failure falls back to fixtures.
+  // In public mode (server-seeded recommendations) we skip the rec fetch
+  // so the goal-mix re-ranking the server computed stays visible.
   useEffect(() => {
     void (async () => {
       const [pre, recs, audit, what] = await Promise.all([
         fetchPreWork(mitchellPreWorkFixture),
-        fetchRecommendations({
-          recommendations: mitchellRecommendationsFixture,
-          audit_id: 0,
-        }),
+        seededFromServer
+          ? Promise.resolve({
+              recommendations,
+              audit_id: 0,
+            })
+          : fetchRecommendations({
+              recommendations: mitchellRecommendationsFixture,
+              audit_id: 0,
+            }),
         fetchAuditTrail("mitchell-2025-001", { events: auditTrailFixture }),
         fetchWhatAISaw("rec-001", whatAiSawFixture),
       ]);
       setPrework(pre);
-      setRecommendations(recs.recommendations);
+      if (!seededFromServer) {
+        setRecommendations(recs.recommendations);
+      }
       setAuditEvents(audit.events);
       setRedactedPrompt(what);
     })();
+    // seededFromServer + initial state never change after mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const recommendationsByRuleId = useMemo(() => {
@@ -92,8 +130,24 @@ export function Workbench() {
 
   const priorYear = mitchell_return.prior_year;
 
+  const goalsForDashboard = initialGoals ?? mitchellGoalsFixture;
+
   return (
     <div className="space-y-4" data-testid="workbench-root">
+      {showIntakeCta && (
+        <div className="flex flex-col items-start justify-between gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-[12px] text-violet-100 sm:flex-row sm:items-center">
+          <span>
+            Ranking is driven by the goals you submitted. Change them any
+            time to see how the ordering shifts.
+          </span>
+          <Link
+            href="/intake"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/10"
+          >
+            Try different goals &rarr;
+          </Link>
+        </div>
+      )}
       {/* Row 1 — Routing rationale + Expert minutes counter */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
         <RoutingRationaleChip />
@@ -120,7 +174,7 @@ export function Workbench() {
 
       {/* Row 3 — Goal dashboard (3 columns) */}
       <GoalDashboard
-        goals={mitchellGoalsFixture}
+        goals={goalsForDashboard}
         recommendations={recommendations}
         acceptedIds={acceptedIds}
       />

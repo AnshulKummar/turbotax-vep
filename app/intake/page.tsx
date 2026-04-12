@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { IntakeForm } from "./IntakeForm";
 
@@ -14,12 +15,12 @@ export default function IntakePage() {
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[480px] bg-[radial-gradient(ellipse_60%_60%_at_50%_0%,rgba(124,58,237,0.18),transparent_70%)]" />
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-5 py-10 sm:py-14">
         <header className="flex flex-col gap-3">
-          <a
+          <Link
             href="/"
             className="w-fit text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)] transition hover:text-white"
           >
             &larr; back
-          </a>
+          </Link>
           <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
             Tell us what you care about
           </h1>
