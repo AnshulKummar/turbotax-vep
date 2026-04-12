@@ -1,10 +1,13 @@
 /**
- * POST /api/intake — T-707.
+ * POST /api/intake — T-707 + Sprint 3 T-F05.
  *
- * Public Sprint 2 demo entry point. Visitors pick 3 goals on the /intake
- * form, this route validates them via `validate_intake`, persists them via
- * `create_intake`, and returns `{ intake_id }`. The intake form then
- * redirects the browser to `/workbench?intake=<intake_id>`.
+ * Public demo entry point. Visitors pick 3 goals (and optionally provide
+ * customer_metadata from the /start flow), this route validates them,
+ * persists via `create_intake`, and returns `{ intake_id }`.
+ *
+ * Sprint 3 addition: optional `customer_metadata` field in the request
+ * body. Validated via `validate_customer_metadata`. Backward compatible —
+ * existing callers (no metadata) still work unchanged.
  *
  * Rate limiting: Agent D wires `apply_rate_limit` from
  * `src/lib/rate-limit.ts` into this route (bucket: "intake") as part of
@@ -21,6 +24,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod/v4";
 
 import { validate_intake } from "@/lib/goals/intake";
+import { validate_customer_metadata } from "@/lib/intake/metadata";
 import { create_intake } from "@/lib/intake/store";
 import { apply_rate_limit } from "@/lib/rate-limit";
 import { INTAKE_RATE_LIMIT_MAX } from "@/lib/rate-limit-config";
@@ -81,6 +85,23 @@ export async function POST(request: Request): Promise<Response> {
     throw e;
   }
 
+  // Sprint 3: optional customer_metadata (backward compatible).
+  const metadata_raw = (body as { customer_metadata?: unknown }).customer_metadata;
+  let customer_metadata;
+  if (metadata_raw !== undefined) {
+    try {
+      customer_metadata = validate_customer_metadata(metadata_raw);
+    } catch (e) {
+      if (e instanceof ZodError) {
+        return NextResponse.json(
+          { error: "Invalid customer_metadata", issues: e.issues },
+          { status: 400 },
+        );
+      }
+      throw e;
+    }
+  }
+
   // Per-process salt so ip/ua hashes can't be correlated across restarts.
   const salt = process.env.INTAKE_HASH_SALT ?? "sprint-02-demo-salt";
   const ip_hash = hash_token(client_ip(request), salt);
@@ -91,6 +112,7 @@ export async function POST(request: Request): Promise<Response> {
       goals,
       ip_hash,
       user_agent_hash,
+      ...(customer_metadata !== undefined ? { customer_metadata } : {}),
     });
     return NextResponse.json(
       {

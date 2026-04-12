@@ -38,5 +38,8 @@ export async function GET(
     intake_id,
     goals: row.goals,
     expires_at: row.expires_at.toISOString(),
+    ...(row.customer_metadata !== undefined
+      ? { customer_metadata: row.customer_metadata }
+      : {}),
   });
 }
