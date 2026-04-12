@@ -125,8 +125,12 @@ export async function produce_recommendations(
   for (const f of findings) finding_by_id.set(f.finding_id, f);
   const rule_id_set = new Set(tax_rules.map((r) => r.id));
 
-  // 2. Build the prompt.
-  const user_prompt = build_user_prompt(findings, goals, customer_context);
+  // 2. Build the prompt. The prompt is intentionally goal-AGNOSTIC per
+  //    AD-S2-01: the LLM explains and ranks the findings on intrinsic
+  //    severity / dollar impact only. All goal-aware re-ranking happens
+  //    locally in `score_recommendation()` so a single cassette serves any
+  //    visitor goal mix at $0 marginal cost.
+  const user_prompt = build_user_prompt(findings, customer_context);
 
   // 3. Redact before it leaves the process.
   const redacted = redact_prompt(user_prompt, return_data);
@@ -185,18 +189,8 @@ export async function produce_recommendations(
 
 function build_user_prompt(
   findings: RuleFinding[],
-  goals: Goal[],
   ctx: CustomerContext,
 ): string {
-  const goal_lines = goals
-    .map(
-      (g) =>
-        `  - rank ${g.rank} weight ${g.weight}: ${g.id} — ${
-          g.rationale ?? "(no rationale provided)"
-        }`,
-    )
-    .join("\n");
-
   const finding_blobs = findings.map((f) => ({
     finding_id: f.finding_id,
     rule_id: f.rule_id,
@@ -213,9 +207,6 @@ function build_user_prompt(
 
   return `CASE ${ctx.case_id} — ${ctx.customer_display_name}
 
-CUSTOMER GOALS (ranked, weight 1-5):
-${goal_lines}
-
 CUSTOMER CONTEXT:
   prior year summary : ${ctx.prior_year_summary ?? "(none)"}
   prior expert notes : ${ctx.prior_expert_notes ?? "(none)"}
@@ -224,6 +215,11 @@ RULE ENGINE FINDINGS (the ONLY findings you may reference by rule_id/finding_id)
 ${JSON.stringify(finding_blobs, null, 2)}
 
 TASK
+Explain each rule-engine finding in plain language for the reviewing CPA.
+Order the items by intrinsic severity, dollar impact, and audit-risk delta —
+do NOT attempt to order by any customer goal vector. A downstream
+deterministic scorer re-ranks the list against the visitor's goal mix.
+
 Return a strict-JSON object with this shape:
 
 {
@@ -234,18 +230,19 @@ Return a strict-JSON object with this shape:
       "one_line_summary": "string, max 140 chars",
       "detail": "string, plain language, max 350 chars",
       "confidence": "number in [0, 1], calibrated",
-      "llm_only": "boolean — set true only if rule_id is null",
-      "goal_alignment_note": "string explaining how this serves the top goal"
+      "llm_only": "boolean — set true only if rule_id is null"
     }
   ]
 }
 
 Requirements:
-- Return up to ${MAX_RECOMMENDATIONS} items, ranked by combined goal-fit and severity.
+- Return up to ${MAX_RECOMMENDATIONS} items.
 - Every non-llm_only item MUST reference a real rule_id and finding_id from
   the list above.
 - If you want to surface something not in the list, set rule_id=null,
   finding_id=null, llm_only=true, and confidence<=0.5.
+- Do NOT emit goal_fits, composite_goal_fit, goal_alignment_note, or any
+  other goal-related field. Goal-aware ranking happens after this call.
 - Do not emit any fields other than the ones listed. No markdown. No code fences.`;
 }
 
@@ -360,7 +357,6 @@ interface ParsedLLMRecommendation {
   detail: string;
   confidence: number;
   llm_only: boolean;
-  goal_alignment_note?: string;
 }
 
 function parse_llm_response(llm_text: string): ParsedLLMRecommendation[] {
@@ -402,6 +398,9 @@ function parse_llm_response(llm_text: string): ParsedLLMRecommendation[] {
   for (const raw of obj.recommendations) {
     if (typeof raw !== "object" || raw === null) continue;
     const item = raw as Record<string, unknown>;
+    // NOTE: any `goal_fits`, `composite_goal_fit`, or `goal_alignment_note`
+    // fields the LLM may emit are deliberately ignored here. Per AD-S2-01
+    // the local goal-fit scorer is the sole source of goal-aware ranking.
     recs.push({
       rule_id: typeof item.rule_id === "string" ? item.rule_id : null,
       finding_id:
@@ -414,10 +413,6 @@ function parse_llm_response(llm_text: string): ParsedLLMRecommendation[] {
       confidence:
         typeof item.confidence === "number" ? item.confidence : 0.5,
       llm_only: item.llm_only === true,
-      goal_alignment_note:
-        typeof item.goal_alignment_note === "string"
-          ? item.goal_alignment_note
-          : undefined,
     });
   }
   return recs;

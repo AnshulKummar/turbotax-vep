@@ -1,8 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { Recommendation, RedactedPrompt } from "@/contracts";
 import {
@@ -11,19 +7,8 @@ import {
   capture_recommendation,
   query_audit_trail,
 } from "@/lib/audit/capture";
-import { close_audit_db, set_audit_db_path } from "@/lib/audit/db";
 
-let tmp_dir: string;
-
-beforeEach(() => {
-  tmp_dir = mkdtempSync(path.join(tmpdir(), "audit-query-"));
-  set_audit_db_path(path.join(tmp_dir, "audit.db"));
-});
-
-afterEach(() => {
-  close_audit_db();
-  rmSync(tmp_dir, { recursive: true, force: true });
-});
+// DB lifecycle (fresh pglite per test) is owned by tests/audit/setup.ts.
 
 function rp(): RedactedPrompt {
   return {

@@ -1,65 +1,129 @@
 /**
- * SQLite schema definitions for the audit trail.
+ * Drizzle Postgres schema for the audit trail.
  *
- * Per ADR-004, we use better-sqlite3 with a local file at
- * `process.env.AUDIT_DB_PATH || ./data/audit.db`. Schema is declared as a
- * single SQL string so `migrations.ts` can run it idempotently on first
- * boot. Every CREATE uses `IF NOT EXISTS` so repeated invocations are safe.
+ * Per AD-S2-02 the audit trail moved off better-sqlite3 onto Neon Postgres
+ * via Drizzle ORM. The same five logical tables ride along — `audit_events`
+ * is the chronological case timeline, the rest are denormalised views the
+ * "what AI saw" feed reads from in a single query.
+ *
+ * The intake_sessions table is added by T-703 for the public Sprint 2 demo
+ * (see ./../intake/store.ts). It lives here so a single Drizzle config
+ * picks up every table on the audit DB.
  */
 
-export const SCHEMA_SQL = `
-CREATE TABLE IF NOT EXISTS audit_events (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ts TEXT NOT NULL,
-  case_id TEXT NOT NULL,
-  event_type TEXT NOT NULL,
-  model TEXT,
-  redacted_prompt TEXT,
-  response_summary TEXT,
-  expert_action TEXT,
-  expert_reason TEXT,
-  metadata_json TEXT
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  real,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
+
+// ---------------------------------------------------------------------------
+// audit_events — chronological case timeline
+// ---------------------------------------------------------------------------
+
+export const audit_events = pgTable(
+  "audit_events",
+  {
+    id: serial("id").primaryKey(),
+    ts: text("ts").notNull(),
+    case_id: text("case_id").notNull(),
+    event_type: text("event_type").notNull(),
+    model: text("model"),
+    redacted_prompt: text("redacted_prompt"),
+    response_summary: text("response_summary"),
+    expert_action: text("expert_action"),
+    expert_reason: text("expert_reason"),
+    metadata_json: text("metadata_json"),
+  },
+  (t) => [
+    index("idx_audit_events_case_id").on(t.case_id),
+    index("idx_audit_events_ts").on(t.ts),
+  ],
 );
 
-CREATE TABLE IF NOT EXISTS customers (
-  id TEXT PRIMARY KEY,
-  display_name TEXT,
-  prior_year_preparer TEXT,
-  goals_json TEXT
+// ---------------------------------------------------------------------------
+// customers — denormalised customer card
+// ---------------------------------------------------------------------------
+
+export const customers = pgTable("customers", {
+  id: text("id").primaryKey(),
+  display_name: text("display_name"),
+  prior_year_preparer: text("prior_year_preparer"),
+  goals_json: text("goals_json"),
+});
+
+// ---------------------------------------------------------------------------
+// recommendations — denormalised recommendation row
+// ---------------------------------------------------------------------------
+
+export const recommendations = pgTable(
+  "recommendations",
+  {
+    id: text("id").primaryKey(),
+    case_id: text("case_id"),
+    rule_id: text("rule_id"),
+    dollar_impact: real("dollar_impact"),
+    confidence: real("confidence"),
+    goal_fit_score: real("goal_fit_score"),
+    produced_at: text("produced_at"),
+  },
+  (t) => [index("idx_recommendations_case_id").on(t.case_id)],
 );
 
-CREATE TABLE IF NOT EXISTS recommendations (
-  id TEXT PRIMARY KEY,
-  case_id TEXT,
-  rule_id TEXT,
-  dollar_impact REAL,
-  confidence REAL,
-  goal_fit_score REAL,
-  produced_at TEXT
+// ---------------------------------------------------------------------------
+// expert_actions — accept/edit/reject/defer log
+// ---------------------------------------------------------------------------
+
+export const expert_actions = pgTable(
+  "expert_actions",
+  {
+    id: serial("id").primaryKey(),
+    recommendation_id: text("recommendation_id"),
+    action: text("action"),
+    reason: text("reason"),
+    ts: text("ts"),
+  },
+  (t) => [
+    index("idx_expert_actions_recommendation_id").on(t.recommendation_id),
+  ],
 );
 
-CREATE TABLE IF NOT EXISTS expert_actions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  recommendation_id TEXT,
-  action TEXT,
-  reason TEXT,
-  ts TEXT
-);
+// ---------------------------------------------------------------------------
+// calibration_runs — ADR-007 calibration eval rows
+// ---------------------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS calibration_runs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ts TEXT,
-  test_set_size INTEGER,
-  max_calibration_error REAL,
-  decile_curve_json TEXT,
-  passed_gate INTEGER
-);
+export const calibration_runs = pgTable("calibration_runs", {
+  id: serial("id").primaryKey(),
+  ts: text("ts"),
+  test_set_size: integer("test_set_size"),
+  max_calibration_error: real("max_calibration_error"),
+  decile_curve_json: text("decile_curve_json"),
+  passed_gate: integer("passed_gate"),
+});
 
-CREATE INDEX IF NOT EXISTS idx_audit_events_case_id ON audit_events (case_id);
-CREATE INDEX IF NOT EXISTS idx_audit_events_ts ON audit_events (ts);
-CREATE INDEX IF NOT EXISTS idx_recommendations_case_id ON recommendations (case_id);
-CREATE INDEX IF NOT EXISTS idx_expert_actions_recommendation_id ON expert_actions (recommendation_id);
-`;
+// ---------------------------------------------------------------------------
+// intake_sessions — T-703 public Sprint 2 demo intake persistence
+// ---------------------------------------------------------------------------
+
+export const intake_sessions = pgTable("intake_sessions", {
+  intake_id: serial("intake_id").primaryKey(),
+  captured_at: timestamp("captured_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  goals: jsonb("goals").notNull(),
+  ip_hash: text("ip_hash").notNull(),
+  user_agent_hash: text("user_agent_hash").notNull(),
+  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// Compatibility surface for legacy callers (tests)
+// ---------------------------------------------------------------------------
 
 export const AUDIT_TABLES = [
   "audit_events",
