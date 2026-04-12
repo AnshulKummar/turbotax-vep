@@ -6,8 +6,14 @@ After Sprint 1 ships the MVP demo of B1, the post-MVP roadmap is structured by b
 > Sprint 2's goal is to take the Sprint 1 prototype and make it a publicly
 > deployable, anyone-can-try-it demonstration of B1 with a real intake UI,
 > a Postgres-backed audit trail, and a Vercel deployment on the
-> auto-assigned `*.vercel.app` URL. A custom domain is a Sprint 3 follow-up.
-> The big-bet workstreams below pick up after Sprint 2 lands.
+> auto-assigned `*.vercel.app` URL. **Sprint 2 is complete and deployed.**
+>
+> **Sprint 3 has been carved out.** See `sprint-03.md`.
+> Sprint 3 adds the customer-side flow (simulated TurboTax intake with
+> document upload), a handoff transition, and a redesigned expert workbench
+> with left-hand navigation and section-based layout. Scalability target:
+> 12,000 sessions/day (30% of 4K concurrent experts x 5-10 cases/day).
+> The big-bet workstreams below pick up after Sprint 3 lands.
 
 ## B2 — Multi Year Tax Co Pilot
 
