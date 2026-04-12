@@ -6,9 +6,9 @@
  * `create_intake`, and returns `{ intake_id }`. The intake form then
  * redirects the browser to `/workbench?intake=<intake_id>`.
  *
- * Rate limiting is intentionally NOT added in this branch — Agent C owns
- * the `src/lib/rate-limit.ts` helper and Agent D wires it into every
- * mutating route during polish. See backlog/sprint-02.md T-708.
+ * Rate limiting: Agent D wires `apply_rate_limit` from
+ * `src/lib/rate-limit.ts` into this route (bucket: "intake") as part of
+ * T-WIRE. See backlog/sprint-02.md T-708.
  *
  * Per ADR-002 every body we receive here is synthetic demo data. There is
  * no PII in the intake payload (goals are ids + weights + optional free
@@ -22,6 +22,7 @@ import { ZodError } from "zod/v4";
 
 import { validate_intake } from "@/lib/goals/intake";
 import { create_intake } from "@/lib/intake/store";
+import { apply_rate_limit } from "@/lib/rate-limit";
 
 /**
  * Hash the raw ip / user-agent into a stable non-reversible token. The
@@ -47,6 +48,9 @@ function client_ip(request: Request): string {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const limited = apply_rate_limit(request, { bucket: "intake" });
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await request.json();

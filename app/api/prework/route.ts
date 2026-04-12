@@ -21,6 +21,7 @@ import { z } from "zod/v4";
 
 import { evaluate_all } from "@/lib/rules";
 import { run_prework } from "@/lib/prework";
+import { apply_rate_limit } from "@/lib/rate-limit";
 import type { PreWorkOutput, PreWorkRequest, TaxReturn } from "@/contracts";
 
 // ---------------------------------------------------------------------------
@@ -271,6 +272,9 @@ const request_schema = z.object({
 // ---------------------------------------------------------------------------
 
 export async function POST(request: Request): Promise<Response> {
+  const limited = apply_rate_limit(request, { bucket: "prework" });
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await request.json();
