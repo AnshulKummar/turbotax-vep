@@ -94,6 +94,79 @@ describe("POST /api/intake", () => {
   });
 });
 
+describe("POST /api/intake with customer_metadata (Sprint 3 T-F07)", () => {
+  it("creates an intake with valid customer_metadata and returns 201", async () => {
+    const res = await POST(
+      make_post_request({
+        goals: valid_goals,
+        customer_metadata: {
+          display_name: "Olivia Mitchell",
+          filing_status: "mfj",
+          agi_band: "250_500k",
+          document_ids: ["w2-acme", "1099-div", "1099-b", "1098"],
+        },
+      }),
+    );
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { intake_id: number; expires_at: string };
+    expect(body.intake_id).toBeGreaterThan(0);
+    expect(body.expires_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+
+    // Round-trip via GET to verify metadata was stored.
+    const get_res = await GET(
+      new Request(`http://localhost/api/intake/${body.intake_id}`),
+      { params: Promise.resolve({ id: String(body.intake_id) }) },
+    );
+    expect(get_res.status).toBe(200);
+    const fetched = (await get_res.json()) as {
+      intake_id: number;
+      goals: { id: string }[];
+      customer_metadata: { display_name: string; filing_status: string };
+    };
+    expect(fetched.customer_metadata.display_name).toBe("Olivia Mitchell");
+    expect(fetched.customer_metadata.filing_status).toBe("mfj");
+  });
+
+  it("returns 400 for invalid customer_metadata (display_name too long)", async () => {
+    const res = await POST(
+      make_post_request({
+        goals: valid_goals,
+        customer_metadata: {
+          display_name: "A".repeat(41), // exceeds max 40 chars
+          filing_status: "single",
+          agi_band: "under_50k",
+          document_ids: [],
+        },
+      }),
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("Invalid customer_metadata");
+  });
+
+  it("returns 400 for invalid customer_metadata (bad filing_status)", async () => {
+    const res = await POST(
+      make_post_request({
+        goals: valid_goals,
+        customer_metadata: {
+          display_name: "Test User",
+          filing_status: "invalid_status",
+        },
+      }),
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("Invalid customer_metadata");
+  });
+
+  it("still returns 201 without customer_metadata (backward compat)", async () => {
+    const res = await POST(make_post_request({ goals: valid_goals }));
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { intake_id: number };
+    expect(body.intake_id).toBeGreaterThan(0);
+  });
+});
+
 describe("GET /api/intake/[id]", () => {
   it("returns 404 for an unknown intake_id", async () => {
     const res = await GET(
