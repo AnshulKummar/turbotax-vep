@@ -1,19 +1,26 @@
 # TurboTax Virtual Expert Platform — Prototype
 
-> **Live demo:** (coming soon — pending Vercel deployment in Sprint 2 Phase 4. URL to be assigned by Vercel.)
+> **Live demo:** https://turbotax-vep.vercel.app
 
 An independent product review and working prototype of a redesigned **TurboTax Virtual Expert Platform**, the layer that powers TurboTax Live Assisted, TurboTax Live Full Service, and Expert Full Service.
 
 ## Try the demo
 
-The deployed prototype is a three-page public tour of **Big Bet B1 — a Goal-Aligned Recommendation System**. Visitors land on `/`, complete a 3-goal intake form at `/intake` (pick three priorities like "maximize refund", "minimize audit risk", "plan a life event", rank them, and set weights), and land on `/workbench?intake=<id>` where the recommendation engine has already re-ranked expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations — which is the whole point.
+The prototype now delivers the full **customer-to-expert journey** for Big Bet B1. A visitor plays the role of a TurboTax customer: enters a synthetic name, picks a filing status and AGI band, selects tax documents from a card grid, then chooses three prioritized goals. After a branded handoff transition, the visitor arrives at a redesigned expert workbench with left-hand navigation and six sections (Brief, Goals, Documents, Pre-work, Recommendations, Audit). The recommendation engine re-ranks expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations.
 
-Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
+### Three demo paths
+
+1. **Full customer flow:** `/` → `/start` → fill info + pick documents + select goals → `/handoff` → `/workbench?intake=<id>&section=brief` (expert view with customer context)
+2. **Quick expert view:** `/workbench` — loads with default Mitchell goals, skips the customer flow entirely
+3. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
+
+The app serves 12 routes. Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
 
 Read more:
 
 - [docs/PRD.md](docs/PRD.md) — full product requirements document, including Big Bets, MVP scope, and success metrics
-- [backlog/sprint-02.md](backlog/sprint-02.md) — Sprint 2 plan for this public-demo milestone
+- [backlog/sprint-03.md](backlog/sprint-03.md) — Sprint 3 plan (customer flow + expert redesign)
+- [backlog/sprint-02.md](backlog/sprint-02.md) — Sprint 2 plan (public demo milestone)
 - [docs/DeploymentGuide.md](docs/DeploymentGuide.md) — deploy + smoke-test checklist
 
 ## What the prototype shows
