@@ -1,5 +1,13 @@
 # Product Backlog
 
+## Sprint status
+
+| Sprint | Status |
+|---|---|
+| Sprint 1 (MVP) | Complete |
+| Sprint 2 (Public demo) | Complete + deployed |
+| Sprint 3 (Customer flow + expert redesign) | Complete |
+
 ## Epics
 
 | ID | Epic | Big bet / increment | Sprint |
