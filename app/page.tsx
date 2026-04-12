@@ -59,28 +59,33 @@ export default function LandingPage() {
             by what the customer cares about.
           </h1>
           <p className="max-w-2xl text-base text-[var(--muted-foreground)] sm:text-lg">
-            Most tax tools show a grab-bag of findings. This prototype
-            re-ranks the same findings against your stated goals &mdash;
-            maximize refund, minimize audit risk, set up next year, plan a
-            life event &mdash; so the ordering reflects what you actually
-            care about. Set three goals, watch the recommendation engine
-            re-score a synthetic return in under two seconds.
+            Experience the full journey &mdash; from customer intake through
+            expert review &mdash; powered by goal-aligned AI recommendations.
+            Set your goals, select your documents, and watch the
+            recommendation engine re-score a synthetic return in under two
+            seconds.
           </p>
 
           <div className="mt-2 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/intake"
+              href="/start"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-[#050508] shadow-lg transition hover:brightness-110"
             >
-              Try the demo &rarr;
+              Try the customer flow &rarr;
+            </Link>
+            <Link
+              href="/workbench"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]"
+            >
+              Skip to expert view
             </Link>
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]"
+              className="inline-flex items-center justify-center gap-2 text-sm text-[var(--muted-foreground)] transition hover:text-white"
             >
-              Read the PRD
+              Read the PRD &rarr;
             </a>
           </div>
         </section>
