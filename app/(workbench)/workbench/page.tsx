@@ -18,6 +18,7 @@
 import Link from "next/link";
 
 import type { CustomerContext, Goal, Recommendation, RuleFinding } from "@/contracts";
+import { DOCUMENT_IDS } from "@/lib/customer/documents";
 import { mitchell_return } from "@/data/mitchell-return";
 import { get_intake } from "@/lib/intake/store";
 import { produce_recommendations } from "@/lib/recommendations/engine";
@@ -181,7 +182,7 @@ export default async function WorkbenchPage({
         customer_name={customer_name}
         filing_status={cm?.filing_status}
         agi_band={cm?.agi_band}
-        document_ids={cm?.document_ids}
+        document_ids={cm?.document_ids ?? DOCUMENT_IDS}
         goals={data.goals}
         recommendations={data.recommendations}
         findings={data.findings}
