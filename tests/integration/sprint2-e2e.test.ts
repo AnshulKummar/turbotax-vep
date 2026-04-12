@@ -40,6 +40,7 @@ import { mitchell_return } from "@/data/mitchell-return";
 import { get_intake } from "@/lib/intake/store";
 import { produce_recommendations } from "@/lib/recommendations/engine";
 import { _reset_rate_limit_store_for_tests } from "@/lib/rate-limit";
+import { SECTION_IDS, DEFAULT_SECTION } from "../../components/workbench/WorkbenchShell";
 
 import { POST as intake_POST } from "../../app/api/intake/route";
 import { GET as intake_GET } from "../../app/api/intake/[id]/route";
@@ -164,5 +165,13 @@ describe("T-713 Sprint 2 end-to-end demo flow", () => {
     expect(top_five_signature(refund_result.recommendations)).not.toBe(
       top_five_signature(audit_result.recommendations),
     );
+  });
+
+  it("WorkbenchShell section nav includes Brief and Recommendations", () => {
+    // Sprint 3: verify the section structure the shell will render
+    expect(SECTION_IDS).toContain("brief");
+    expect(SECTION_IDS).toContain("recommendations");
+    expect(DEFAULT_SECTION).toBe("brief");
+    expect(SECTION_IDS.length).toBe(6);
   });
 });
