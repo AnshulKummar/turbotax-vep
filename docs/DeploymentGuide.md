@@ -1,6 +1,6 @@
-# Deployment Guide — TurboTax VEP Sprint 2 Demo
+# Deployment Guide — TurboTax VEP Sprint 3 Demo
 
-Short, copy-pasteable reference for deploying the Sprint 2 public demo to
+Short, copy-pasteable reference for deploying the Sprint 3 public demo to
 Vercel + Neon and verifying it after every production push.
 
 ## Prerequisites
@@ -29,23 +29,39 @@ first prod deploy (or after any migration lands on `main`).
 Run this checklist after every production deploy. It takes about 90
 seconds end-to-end.
 
-- [ ] `GET /` — landing page renders, both CTAs visible ("Try the demo"
-      and "Read the PRD"), disclaimer banner present
-- [ ] Click "Try the demo" → `/intake` — form renders with all 10 goals
-      selectable (`GOAL_IDS` from `src/lib/goals/taxonomy.ts`)
-- [ ] On `/intake` submit a valid 3-goal payload
-      (e.g. `maximize_refund` / `minimize_audit_risk` /
-      `optimize_next_year` at ranks 1/2/3 and weights 5/3/2) →
-      redirects to `/workbench?intake=<id>`
-- [ ] `/workbench?intake=<id>` — Mitchell return customer name appears
-      in the header, goal dashboard shows the three submitted goals,
-      recommendation list is non-empty, "What you're looking at"
-      `<details>` element is visible at the top, disclaimer banner is
-      visible, footer credit + GitHub link are visible
-- [ ] Try a second intake with a different goal mix
-      (e.g. `minimize_audit_risk` / `plan_life_event` / `simplify_filing`
-      at ranks 1/2/3 and weights 5/3/2) — confirm the top-5 recommendation
-      ordering on `/workbench` differs from the first run
+### Sprint 3 customer-to-expert flow (primary path)
+
+- [ ] `GET /` — landing page renders, dual CTAs visible ("Try the
+      customer flow" + "Skip to expert view"), disclaimer banner present
+- [ ] Click "Try the customer flow" → `/start` loads
+- [ ] Fill in a synthetic name, select a filing status, pick 4 documents,
+      click "Continue to goals"
+- [ ] Select 3 goals with rank/weight, click "Connect me with my expert"
+- [ ] Handoff screen shows "Connecting you to Alex, your tax expert..."
+      and auto-redirects to `/workbench?intake=<id>&section=brief`
+- [ ] Expert view: left nav visible (6 sections), Brief section shows
+      customer name, filing status, AGI band, goals, and selected documents
+- [ ] Click "Recommendations" in left nav — section switches, recs visible
+- [ ] Click "Accept recommendations" — synthetic success toast appears
+- [ ] Navigate through all 6 sections via left nav (Brief, Goals,
+      Documents, Pre-work, Recommendations, Audit)
+- [ ] Verify disclaimer banner is present on `/start`, `/handoff`, and
+      `/workbench`
+
+### Quick expert view (skip customer flow)
+
+- [ ] `GET /workbench` (no intake param) — loads with default Mitchell
+      goals, Brief section, left nav functional
+- [ ] Recommendations section shows goal-fit scores
+
+### Legacy intake (Sprint 2 backward compat)
+
+- [ ] `GET /intake` — form renders with all 10 goals selectable
+- [ ] Submit a valid 3-goal payload → redirects to
+      `/workbench?intake=<id>` — recommendations render correctly
+
+### Rate limiting
+
 - [ ] Hit `POST /api/intake` 21 times from the same IP via `curl`:
 
       ```bash
@@ -57,13 +73,15 @@ seconds end-to-end.
       done
       ```
 
-      Expect 20 × `201` followed by `429` on the 21st response, with a
+      Expect 20 x `201` followed by `429` on the 21st response, with a
       `Retry-After` header.
-- [ ] Disclaimer banner ("Synthetic data only — please don't enter real
-      personal information. This is a portfolio prototype.") is present
-      on `/`, `/intake`, and `/workbench`
-- [ ] Footer credit ("Built by Anshul Kummar") and GitHub link are
-      visible on `/`, `/intake`, and `/workbench`
+
+### Disclaimer + footer
+
+- [ ] Disclaimer banner ("Synthetic data only...") present on `/`,
+      `/start`, `/handoff`, `/intake`, and `/workbench`
+- [ ] Footer credit ("Built by Anshul Kummar") and GitHub link visible
+      on `/`, `/start`, `/handoff`, `/intake`, and `/workbench`
 
 ## Rollback
 
@@ -71,14 +89,20 @@ If the smoke test fails, roll back in the Vercel dashboard
 (Deployments → previous → "Promote to Production"). Neon does not need
 rollback unless a migration is involved.
 
-## End-to-end test (non-prod)
+## End-to-end tests (non-prod)
 
-The Vitest integration test `tests/integration/sprint2-e2e.test.ts`
-exercises the same flow in-process against the pglite test DB. Run it
-locally before shipping:
+The Vitest integration tests exercise the demo flows in-process against
+the pglite test DB. Run them locally before shipping:
 
 ```bash
+# Sprint 2 flow (legacy intake → workbench)
 npm test -- tests/integration/sprint2-e2e.test.ts
+
+# Sprint 3 flow (customer metadata + goals → workbench)
+npm test -- tests/integration/sprint3-e2e.test.ts
+
+# All tests
+npm test
 ```
 
 Once a live URL exists, a follow-up HTTP smoke-test script can be added
