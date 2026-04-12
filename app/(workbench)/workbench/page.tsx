@@ -1,42 +1,48 @@
 /**
- * The Expert Workbench page.
+ * The Expert Workbench page — Sprint 3 T-G08 refactor.
  *
- * Sprint 2 adds public mode: when the URL carries `?intake=<id>` the page
- * reads the stored goal vector from Postgres via `get_intake`, runs the
- * recommendation engine against the Mitchell return with those goals, and
- * passes the results into the Workbench component so the goal-mix-aware
- * ranking is visible on first paint.
+ * Sprint 3 replaces the stacked-panel <Workbench> with the section-based
+ * <WorkbenchShell> that has left-hand navigation and 6 distinct sections
+ * (Brief, Goals, Documents, Pre-work, Recommendations, Audit).
  *
- *   - no intake param      -> default Mitchell goal fixture, CTA hidden
- *   - valid intake param   -> stored goals + server-computed recs, CTA visible
+ * Data loading is unchanged from Sprint 2:
+ *   - no intake param      -> default Mitchell goal fixture
+ *   - valid intake param   -> stored goals + server-computed recs
  *   - invalid intake param -> friendly error with a "start over" link
  *
- * The customer-name and routing-chip strings remain hardcoded to the
- * Mitchell return; Sprint 2 does not introduce multi-return support.
+ * Sprint 3 addition: reads customer_metadata from intake if present and
+ * passes display_name, filing_status, agi_band, document_ids to the shell.
+ * Per AD-S3-05: customer_metadata NEVER enters the LLM prompt.
+ * Per AD-S3-08: customer_metadata not in audit capture.
  */
 import Link from "next/link";
 
-import type { CustomerContext, Goal, Recommendation } from "@/contracts";
+import type { CustomerContext, Goal, Recommendation, RuleFinding } from "@/contracts";
 import { mitchell_return } from "@/data/mitchell-return";
 import { get_intake } from "@/lib/intake/store";
 import { produce_recommendations } from "@/lib/recommendations/engine";
+import { evaluate_all } from "@/lib/rules";
+import type { CustomerMetadata } from "@/lib/intake/metadata";
 
 import { DisclaimerBanner } from "../../../components/public/DisclaimerBanner";
 import { PublicFooter } from "../../../components/public/PublicFooter";
 import { mitchellGoalsFixture } from "../../../components/workbench/__fixtures__/mitchell-goals.fixture";
-import { Workbench } from "../../../components/workbench/Workbench";
+import { WorkbenchShell } from "../../../components/workbench/WorkbenchShell";
 
 // Avoid static pre-rendering — the page hits Postgres on every request.
 export const dynamic = "force-dynamic";
 
 interface WorkbenchPageProps {
-  searchParams: Promise<{ intake?: string }>;
+  searchParams: Promise<{ intake?: string; section?: string }>;
 }
 
 interface ResolvedIntake {
   goals: Goal[];
   recommendations: Recommendation[];
-  showIntakeCta: boolean;
+  findings: RuleFinding[];
+  customer_context: CustomerContext;
+  audit_id: number;
+  customer_metadata?: CustomerMetadata;
 }
 
 async function resolve_intake(
@@ -46,13 +52,12 @@ async function resolve_intake(
   | { kind: "invalid"; reason: string }
 > {
   if (!intakeParam) {
-    // Sprint 1 default: use the bundled Mitchell goal fixture so the
-    // workbench is never broken. No CTA banner in this mode.
     const goals = mitchellGoalsFixture;
-    const recommendations = await run_engine(goals);
+    const { recommendations, audit_id, customer_context, findings } =
+      await run_engine(goals);
     return {
       kind: "ok",
-      data: { goals, recommendations, showIntakeCta: false },
+      data: { goals, recommendations, findings, customer_context, audit_id },
     };
   }
 
@@ -74,18 +79,27 @@ async function resolve_intake(
     };
   }
 
-  const recommendations = await run_engine(row.goals);
+  const { recommendations, audit_id, customer_context, findings } =
+    await run_engine(row.goals);
   return {
     kind: "ok",
     data: {
       goals: row.goals,
       recommendations,
-      showIntakeCta: true,
+      findings,
+      customer_context,
+      audit_id,
+      customer_metadata: row.customer_metadata,
     },
   };
 }
 
-async function run_engine(goals: Goal[]): Promise<Recommendation[]> {
+async function run_engine(goals: Goal[]): Promise<{
+  recommendations: Recommendation[];
+  audit_id: number;
+  customer_context: CustomerContext;
+  findings: RuleFinding[];
+}> {
   const customer_context: CustomerContext = {
     case_id: mitchell_return.case_id,
     customer_display_name: `${mitchell_return.taxpayer.first_name} & ${
@@ -93,27 +107,36 @@ async function run_engine(goals: Goal[]): Promise<Recommendation[]> {
     } ${mitchell_return.taxpayer.last_name}`,
     goals,
   };
+
+  const findings = evaluate_all(mitchell_return);
+
   try {
     const result = await produce_recommendations(
       mitchell_return,
       goals,
       customer_context,
     );
-    return result.recommendations;
+    return {
+      recommendations: result.recommendations,
+      audit_id: result.audit_id,
+      customer_context,
+      findings,
+    };
   } catch (err) {
-    // If the cassette can't be read (e.g. during a first-boot prod deploy
-    // before the workflow has recorded one) fall back to an empty rec set
-    // so the page still renders. The Workbench will then try its own
-    // client fetch, which will land on the /api/recommendations route.
     console.error("[workbench] produce_recommendations failed:", err);
-    return [];
+    return {
+      recommendations: [],
+      audit_id: 0,
+      customer_context,
+      findings,
+    };
   }
 }
 
 export default async function WorkbenchPage({
   searchParams,
 }: WorkbenchPageProps) {
-  const { intake } = await searchParams;
+  const { intake, section } = await searchParams;
   const resolved = await resolve_intake(intake);
 
   if (resolved.kind === "invalid") {
@@ -139,25 +162,31 @@ export default async function WorkbenchPage({
     );
   }
 
+  const { data } = resolved;
+  const cm = data.customer_metadata;
+
+  // Default customer name from Mitchell return when no customer metadata
+  const customer_name =
+    cm?.display_name ??
+    `${mitchell_return.taxpayer.first_name} & ${
+      mitchell_return.spouse?.first_name ?? ""
+    } ${mitchell_return.taxpayer.last_name}`;
+
   return (
     <div className="space-y-4">
       <DisclaimerBanner />
-      <details className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-[12px] text-[var(--muted-foreground)]">
-        <summary className="cursor-pointer font-semibold text-white">
-          What you&apos;re looking at
-        </summary>
-        <p className="mt-2">
-          This is the Layer 3 Expert Workbench running Big Bet B1 against
-          the synthetic Mitchell family return. The recommendation list is
-          re-ranked against the goals you submitted on /intake; everything
-          else (risk register, return surface, audit trail, what-the-AI-saw)
-          is the same deterministic pipeline behind the scoring.
-        </p>
-      </details>
-      <Workbench
-        initialGoals={resolved.data.goals}
-        initialRecommendations={resolved.data.recommendations}
-        showIntakeCta={resolved.data.showIntakeCta}
+      <WorkbenchShell
+        customer_name={customer_name}
+        filing_status={cm?.filing_status}
+        agi_band={cm?.agi_band}
+        document_ids={cm?.document_ids}
+        goals={data.goals}
+        recommendations={data.recommendations}
+        findings={data.findings}
+        return_data={mitchell_return}
+        customer_context={data.customer_context}
+        audit_id={data.audit_id}
+        initial_section={section}
       />
       <PublicFooter />
     </div>
