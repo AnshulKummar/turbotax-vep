@@ -21,6 +21,8 @@ import { mitchell_return } from "@/data/mitchell-return";
 import { get_intake } from "@/lib/intake/store";
 import { produce_recommendations } from "@/lib/recommendations/engine";
 
+import { DisclaimerBanner } from "../../../components/public/DisclaimerBanner";
+import { PublicFooter } from "../../../components/public/PublicFooter";
 import { mitchellGoalsFixture } from "../../../components/workbench/__fixtures__/mitchell-goals.fixture";
 import { Workbench } from "../../../components/workbench/Workbench";
 
@@ -116,28 +118,48 @@ export default async function WorkbenchPage({
 
   if (resolved.kind === "invalid") {
     return (
-      <div className="glass-card mx-auto max-w-lg p-6 text-center">
-        <h1 className="text-base font-semibold text-white">
-          We can&apos;t load that intake
-        </h1>
-        <p className="mt-2 text-[13px] text-[var(--muted-foreground)]">
-          {resolved.reason}
-        </p>
-        <Link
-          href="/intake"
-          className="mt-5 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-[#050508] transition hover:brightness-110"
-        >
-          Start over
-        </Link>
+      <div className="space-y-6">
+        <DisclaimerBanner />
+        <div className="glass-card mx-auto max-w-lg p-6 text-center">
+          <h1 className="text-base font-semibold text-white">
+            We can&apos;t load that intake
+          </h1>
+          <p className="mt-2 text-[13px] text-[var(--muted-foreground)]">
+            {resolved.reason}
+          </p>
+          <Link
+            href="/intake"
+            className="mt-5 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-[#050508] transition hover:brightness-110"
+          >
+            Start over
+          </Link>
+        </div>
+        <PublicFooter />
       </div>
     );
   }
 
   return (
-    <Workbench
-      initialGoals={resolved.data.goals}
-      initialRecommendations={resolved.data.recommendations}
-      showIntakeCta={resolved.data.showIntakeCta}
-    />
+    <div className="space-y-4">
+      <DisclaimerBanner />
+      <details className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-[12px] text-[var(--muted-foreground)]">
+        <summary className="cursor-pointer font-semibold text-white">
+          What you&apos;re looking at
+        </summary>
+        <p className="mt-2">
+          This is the Layer 3 Expert Workbench running Big Bet B1 against
+          the synthetic Mitchell family return. The recommendation list is
+          re-ranked against the goals you submitted on /intake; everything
+          else (risk register, return surface, audit trail, what-the-AI-saw)
+          is the same deterministic pipeline behind the scoring.
+        </p>
+      </details>
+      <Workbench
+        initialGoals={resolved.data.goals}
+        initialRecommendations={resolved.data.recommendations}
+        showIntakeCta={resolved.data.showIntakeCta}
+      />
+      <PublicFooter />
+    </div>
   );
 }

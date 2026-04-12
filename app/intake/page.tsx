@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DisclaimerBanner } from "../../components/public/DisclaimerBanner";
+import { PublicFooter } from "../../components/public/PublicFooter";
 import { IntakeForm } from "./IntakeForm";
 
 export const metadata: Metadata = {
@@ -31,22 +33,11 @@ export default function IntakePage() {
           </p>
         </header>
 
-        <div
-          role="note"
-          className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[12px] text-amber-200 sm:text-[13px]"
-        >
-          <strong className="font-semibold">Portfolio prototype.</strong>{" "}
-          Don&apos;t enter real personal information. The return you&apos;ll see is
-          the synthetic Mitchell family return; your goals live in a 7-day
-          session row and are never tied to your identity.
-        </div>
+        <DisclaimerBanner />
 
         <IntakeForm />
 
-        <footer className="mt-4 pt-6 text-center text-[11px] text-[var(--muted-foreground)]">
-          Built by Anshul Kummar. Synthetic data only — not affiliated with
-          Intuit.
-        </footer>
+        <PublicFooter />
       </main>
     </div>
   );
