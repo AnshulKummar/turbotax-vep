@@ -100,11 +100,17 @@ export function IntakeForm() {
                       rank: Number(e.target.value) as 1 | 2 | 3,
                     })
                   }
-                  className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white focus:border-violet-400 focus:outline-none"
+                  className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-white focus:border-violet-400 focus:outline-none [color-scheme:dark]"
                 >
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
+                  <option value={1} className="bg-[#0f0f17] text-white">
+                    1
+                  </option>
+                  <option value={2} className="bg-[#0f0f17] text-white">
+                    2
+                  </option>
+                  <option value={3} className="bg-[#0f0f17] text-white">
+                    3
+                  </option>
                 </select>
               </label>
             </div>
@@ -119,11 +125,17 @@ export function IntakeForm() {
                   patch_row(idx, { id: e.target.value as GoalId | "" })
                 }
                 aria-invalid={Boolean(id_err)}
-                className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-violet-400 focus:outline-none"
+                className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-violet-400 focus:outline-none [color-scheme:dark]"
               >
-                <option value="">Select a goal…</option>
+                <option value="" className="bg-[#0f0f17] text-white">
+                  Select a goal…
+                </option>
                 {GOAL_IDS.map((id) => (
-                  <option key={id} value={id}>
+                  <option
+                    key={id}
+                    value={id}
+                    className="bg-[#0f0f17] text-white"
+                  >
                     {GOAL_LABEL[id]}
                   </option>
                 ))}
@@ -143,10 +155,14 @@ export function IntakeForm() {
                   patch_row(idx, { weight: Number(e.target.value) })
                 }
                 aria-invalid={Boolean(weight_err)}
-                className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-violet-400 focus:outline-none"
+                className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-violet-400 focus:outline-none [color-scheme:dark]"
               >
                 {[1, 2, 3, 4, 5].map((w) => (
-                  <option key={w} value={w}>
+                  <option
+                    key={w}
+                    value={w}
+                    className="bg-[#0f0f17] text-white"
+                  >
                     {WEIGHT_LABELS[w]}
                   </option>
                 ))}

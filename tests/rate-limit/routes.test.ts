@@ -2,12 +2,15 @@
  * T-WIRE — verifies `apply_rate_limit` is actually wired into the three
  * public mutating API routes.
  *
- * Strategy: for each route, fire 21 requests from the same fake IP and
- * assert the 21st comes back as a 429 with a `Retry-After` header. The
- * default ceiling in `apply_rate_limit` is 20/hour, and because the rate
- * limit runs BEFORE body parsing the route handler doesn't care that the
- * body is empty — the first 20 may return 400 (invalid body) but the 21st
- * must be short-circuited to 429 by the limiter.
+ * Strategy: for each route, fire `max` requests from the same fake IP,
+ * assert none of them were 429, then fire one more and assert it comes
+ * back as a 429 with a `Retry-After` header. Because the rate limit
+ * runs BEFORE body parsing the route handler doesn't care that the body
+ * is empty — the first `max` may return 400 (invalid body) but the
+ * `max + 1`-th must be short-circuited to 429 by the limiter.
+ *
+ * Per-route budgets live in `src/lib/rate-limit-config.ts` so this test
+ * and the routes stay in sync whenever we retune the ceilings.
  *
  * The in-memory bucket store is reset between tests so route order and
  * bucket isolation don't leak across cases.
@@ -16,6 +19,11 @@
 import { describe, expect, it, beforeEach } from "vitest";
 
 import { _reset_rate_limit_store_for_tests } from "@/lib/rate-limit";
+import {
+  INTAKE_RATE_LIMIT_MAX,
+  RECOMMENDATIONS_RATE_LIMIT_MAX,
+  PREWORK_RATE_LIMIT_MAX,
+} from "@/lib/rate-limit-config";
 
 import { POST as intake_POST } from "../../app/api/intake/route";
 import { POST as recommendations_POST } from "../../app/api/recommendations/route";
@@ -37,15 +45,15 @@ beforeEach(() => {
   _reset_rate_limit_store_for_tests();
 });
 
-describe("T-WIRE — API routes are rate-limited at 20/hour/IP", () => {
-  it("POST /api/intake returns 429 on the 21st request", async () => {
-    for (let i = 0; i < 20; i += 1) {
+describe("T-WIRE — API routes are rate-limited per-IP", () => {
+  it(`POST /api/intake returns 429 on the ${INTAKE_RATE_LIMIT_MAX + 1}th request`, async () => {
+    for (let i = 0; i < INTAKE_RATE_LIMIT_MAX; i += 1) {
       const res = await intake_POST(
         make_request("http://localhost/api/intake", {}),
       );
-      // First 20 are permitted by the limiter; the handler may reject the
-      // body with 400 ("Invalid goals payload" or similar), but it must
-      // not be 429.
+      // Every request up to the ceiling is permitted by the limiter; the
+      // handler may reject the body with 400 ("Invalid goals payload" or
+      // similar), but it must not be 429.
       expect(res.status).not.toBe(429);
     }
     const blocked = await intake_POST(
@@ -57,8 +65,8 @@ describe("T-WIRE — API routes are rate-limited at 20/hour/IP", () => {
     expect(body.error).toBe("rate_limited");
   });
 
-  it("POST /api/recommendations returns 429 on the 21st request", async () => {
-    for (let i = 0; i < 20; i += 1) {
+  it(`POST /api/recommendations returns 429 on the ${RECOMMENDATIONS_RATE_LIMIT_MAX + 1}th request`, async () => {
+    for (let i = 0; i < RECOMMENDATIONS_RATE_LIMIT_MAX; i += 1) {
       const res = await recommendations_POST(
         make_request("http://localhost/api/recommendations", {}),
       );
@@ -73,8 +81,8 @@ describe("T-WIRE — API routes are rate-limited at 20/hour/IP", () => {
     expect(body.error).toBe("rate_limited");
   });
 
-  it("POST /api/prework returns 429 on the 21st request", async () => {
-    for (let i = 0; i < 20; i += 1) {
+  it(`POST /api/prework returns 429 on the ${PREWORK_RATE_LIMIT_MAX + 1}th request`, async () => {
+    for (let i = 0; i < PREWORK_RATE_LIMIT_MAX; i += 1) {
       const res = await prework_POST(
         make_request("http://localhost/api/prework", {}),
       );
@@ -91,7 +99,7 @@ describe("T-WIRE — API routes are rate-limited at 20/hour/IP", () => {
 
   it("buckets are independent across routes (intake overflow does not block recommendations)", async () => {
     // Burn the intake bucket.
-    for (let i = 0; i < 21; i += 1) {
+    for (let i = 0; i < INTAKE_RATE_LIMIT_MAX + 1; i += 1) {
       await intake_POST(
         make_request("http://localhost/api/intake", {}),
       );

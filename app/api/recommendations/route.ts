@@ -33,6 +33,7 @@ import { ZodError, z } from "zod/v4";
 import { validate_intake } from "@/lib/goals/intake";
 import { produce_recommendations } from "@/lib/recommendations/engine";
 import { apply_rate_limit } from "@/lib/rate-limit";
+import { RECOMMENDATIONS_RATE_LIMIT_MAX } from "@/lib/rate-limit-config";
 import type { CustomerContext, TaxReturn } from "@/contracts";
 
 // ---------------------------------------------------------------------------
@@ -69,7 +70,10 @@ const request_schema = z.object({
 // ---------------------------------------------------------------------------
 
 export async function POST(request: Request): Promise<Response> {
-  const limited = apply_rate_limit(request, { bucket: "recommendations" });
+  const limited = apply_rate_limit(request, {
+    bucket: "recommendations",
+    max: RECOMMENDATIONS_RATE_LIMIT_MAX,
+  });
   if (limited) return limited;
 
   let body: unknown;

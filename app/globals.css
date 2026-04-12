@@ -28,6 +28,13 @@
 }
 
 :root {
+  /*
+   * Tell the UA that this document's form controls are dark-themed.
+   * Without this, native <select> dropdowns, date pickers, etc. render
+   * with a white background + white text (because the <select> itself
+   * has text-white on it), making options invisible until hovered.
+   */
+  color-scheme: dark;
   --background: #050508;
   --foreground: #ffffff;
   --card: rgba(18, 18, 28, 0.7);

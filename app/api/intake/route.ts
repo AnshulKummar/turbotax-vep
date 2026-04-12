@@ -23,6 +23,7 @@ import { ZodError } from "zod/v4";
 import { validate_intake } from "@/lib/goals/intake";
 import { create_intake } from "@/lib/intake/store";
 import { apply_rate_limit } from "@/lib/rate-limit";
+import { INTAKE_RATE_LIMIT_MAX } from "@/lib/rate-limit-config";
 
 /**
  * Hash the raw ip / user-agent into a stable non-reversible token. The
@@ -48,7 +49,10 @@ function client_ip(request: Request): string {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const limited = apply_rate_limit(request, { bucket: "intake" });
+  const limited = apply_rate_limit(request, {
+    bucket: "intake",
+    max: INTAKE_RATE_LIMIT_MAX,
+  });
   if (limited) return limited;
 
   let body: unknown;

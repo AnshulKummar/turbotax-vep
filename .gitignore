@@ -48,3 +48,4 @@ PRD_v0.*.md
 interview-notes*
 tsconfig.tsbuildinfo
 package-lock.json
+.vercel
