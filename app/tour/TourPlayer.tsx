@@ -163,7 +163,16 @@ export function TourPlayer() {
     }
   }, [playing, audioEnabled]);
 
-  // ── Auto-advance timer (waits for speech to finish) ────────────────
+  // ── Auto-advance logic ──────────────────────────────────────────────
+  //
+  // When audio is ON:  speech completion is the SOLE advance trigger.
+  //                    The timer is cosmetic progress only — it never
+  //                    triggers a step change.
+  // When audio is OFF: the fixed duration timer drives advancement.
+  //
+  // This guarantees the narrator always finishes before the screen moves.
+
+  // Timer — cosmetic elapsed counter (and fallback driver when audio off)
   useEffect(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -175,19 +184,17 @@ export function TourPlayer() {
     timerRef.current = setInterval(() => {
       setElapsed((prev) => {
         const next = prev + 0.1;
-        if (next >= step.duration) {
-          // Only advance if speech is also done (or audio is off)
-          if (speechDone || !audioEnabled) {
-            if (!isLastStep) {
-              setCurrentStep((s) => s + 1);
-            } else {
-              setPlaying(false);
-            }
-            return 0;
+
+        // When audio is OFF, timer drives advancement
+        if (!audioEnabled && next >= step.duration) {
+          if (!isLastStep) {
+            setCurrentStep((s) => s + 1);
+          } else {
+            setPlaying(false);
           }
-          // Timer done but speech still going — hold at max
-          return step.duration;
+          return 0;
         }
+
         return next;
       });
     }, 100);
@@ -195,19 +202,23 @@ export function TourPlayer() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, step.duration, isLastStep, currentStep, speechDone, audioEnabled]);
+  }, [playing, step.duration, isLastStep, currentStep, audioEnabled]);
 
-  // ── Advance when speech finishes (if timer already done) ───────────
+  // Speech-driven advance — the ONLY way to move forward when audio is on
   useEffect(() => {
-    if (!speechDone || !playing) return;
-    if (elapsed >= step.duration && step.duration > 0) {
+    if (!speechDone || !playing || !audioEnabled) return;
+
+    // Add a brief 0.8s pause after speech ends for breathing room
+    const pauseTimer = setTimeout(() => {
       if (!isLastStep) {
         setCurrentStep((s) => s + 1);
       } else {
         setPlaying(false);
       }
-    }
-  }, [speechDone, elapsed, step.duration, playing, isLastStep]);
+    }, 800);
+
+    return () => clearTimeout(pauseTimer);
+  }, [speechDone, playing, audioEnabled, isLastStep]);
 
   // ── Controls ───────────────────────────────────────────────────────
   const goNext = useCallback(() => {
