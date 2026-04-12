@@ -8,12 +8,13 @@ An independent product review and working prototype of a redesigned **TurboTax V
 
 The prototype now delivers the full **customer-to-expert journey** for Big Bet B1. A visitor plays the role of a TurboTax customer: enters a synthetic name, picks a filing status and AGI band, selects tax documents from a card grid, then chooses three prioritized goals. After a branded handoff transition, the visitor arrives at a redesigned expert workbench with left-hand navigation and six sections (Brief, Goals, Documents, Pre-work, Recommendations, Audit). The recommendation engine re-ranks expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations.
 
-### Four demo paths
+### Five demo paths
 
-1. **Full customer flow:** `/` → `/start` → fill info + pick documents + select goals → `/handoff` → `/workbench?intake=<id>&section=brief` (expert view with customer context)
-2. **Quick expert view:** `/workbench` — loads with default Mitchell goals, skips the customer flow entirely
-3. **Customer review:** `/review?intake=<id>` — customer approves or declines expert-shared recommendations
-4. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
+1. **Guided tour:** [`/tour`](https://turbotax-vep.vercel.app/tour) — self-running narrated walkthrough of the full demo script with auto-advancing captions, playback controls, and keyboard shortcuts
+2. **Full customer flow:** `/` → `/start` → fill info + pick documents + select goals → `/handoff` → `/workbench?intake=<id>&section=brief` (expert view with customer context)
+3. **Quick expert view:** `/workbench` — loads with default Mitchell goals, skips the customer flow entirely
+4. **Customer review:** `/review?intake=<id>` — customer approves or declines expert-shared recommendations
+5. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
 
 The app serves 13 routes. Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
 

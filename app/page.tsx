@@ -66,12 +66,18 @@ export default function LandingPage() {
             seconds.
           </p>
 
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
-              href="/start"
+              href="/tour"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-[#050508] shadow-lg transition hover:brightness-110"
             >
-              Try the customer flow &rarr;
+              Watch the guided tour &rarr;
+            </Link>
+            <Link
+              href="/start"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]"
+            >
+              Try the customer flow
             </Link>
             <Link
               href="/workbench"

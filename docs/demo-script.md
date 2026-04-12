@@ -1,310 +1,164 @@
-# Demo Script — TurboTax Virtual Expert Platform Prototype
+# Demo Script — TurboTax Virtual Expert Platform
 
-> **Audience:** Intuit hiring panel for the Principal PM, Virtual Expert Platform role.
-> **Length:** ~10 minutes live, ~3 minutes if narrated against the screenshots.
-> **Goal:** Prove that Big Bet B1 (Goal-Aligned Recommendation System) is buildable
-> end-to-end on top of the existing four-layer architecture, using a single
-> realistic synthetic return (Olivia & Ryan Mitchell, MFJ, AGI ~$326K).
-
-This script walks the prototype against the ten demo points in PRD §8. Every step
-maps to a panel that is actually wired up in `app/(workbench)/workbench/page.tsx`
-and exercised by the integration test in `tests/integration/end-to-end.test.ts`.
+> **Audience:** Deepali (hiring manager), Intuit Principal PM interview panel
+> **Format:** Screen-share walkthrough of https://turbotax-vep.vercel.app
+> **Length:** ~12 minutes
+> **Prototype:** Live at https://turbotax-vep.vercel.app | PRD at `docs/PRD.md` on GitHub
 
 ---
 
-## Pre-flight (60 seconds, off-camera)
+## Act 1 — Introduction (90 sec)
 
-```bash
-# From the repo root
-npm install
-cp .env.example .env.local           # add ANTHROPIC_API_KEY if recording
-npm run dev                          # http://localhost:3000
-```
+Deepali, thank you for the time. I'm going to show you a working prototype of the feature I believe is the highest-leverage investment for the Virtual Expert Platform: a goal-aligned recommendation system that turns the expert workbench from a return-processing tool into a customer-outcome engine.
 
-`http://localhost:3000` redirects to `/workbench`. The page hydrates from
-local fixtures first, then issues parallel `fetch` calls to the live API
-routes (`/api/prework`, `/api/recommendations`, `/api/audit`) and replaces
-state when they return — so the demo never shows a loading state, even on a
-cold cassette.
+Before building it, I ran the research. I pulled publicly available feedback from TrustPilot, BBB, Reddit, app store reviews, NerdWallet, and the Washington Post's testing of Intuit Assist — 88 verbatim customer quotes in total. The goal was to map customer friction directly to expert capability gaps.
 
-> **Cost discipline (ADR-003 + cassette pattern).** The recommendation engine
-> replays `tests/recommendations/cassettes/mitchell-rec-cassette.json` unless
-> `RECORD_CASSETTES=1` is set. A normal demo run is **$0**. The committed
-> cassette was recorded against `claude-sonnet-4-6` and reflects ~3,950 input
-> tokens / ~1,880 output tokens (~$0.043 per record).
+The research surfaced three strategic bets and a set of incremental fixes. The full PRD with the analysis, architecture, and prioritization is on GitHub. Today I'll focus on Big Bet B1 — the one I prototyped end-to-end — and close with two additional bets that open new revenue channels.
 
 ---
 
-## Step 1 — Customer goal capture (PRD §8 #1)
+## Act 2 — The Problem (2 min)
 
-**What you say:**
-> "Olivia and Ryan came in with three goals, ranked. Maximize refund, don't
-> get audited, and start positioning for a smaller TY2026 bill. The intake
-> screen captured them in plain language, attached the canonical goal-tag
-> vector, and dropped them into the case. That goal vector is what the
-> recommendation engine ranks against — not the form fields, not the prior
-> preparer's notes."
+Two findings stood out from the research:
 
-**What you click:**
-- The intake panel is mocked at this stage of the prototype — point at
-  the three goal chips inside the **Goal Dashboard** card. Each one
-  carries a rank, a weight, and a tag list. Those came from
-  `mitchellGoalsFixture` and would have come from `validate_intake()` in
-  production (`src/lib/goals/intake.ts`).
+**First, mechanical errors are everywhere.** The data shows recurring, detectable mistakes: missed depreciation on rental properties, missing wash sale Code W on Form 8949, HSA limit mismatches, RSU double-counting between W-2 Box 1 and 1099-B. One documented case shows a $12K ISO AMT bug that took three years and a congressional inquiry to resolve. The Washington Post tested Intuit Assist and found it wrong on more than half of 16 tax questions reviewed by credentialed professionals. These aren't edge cases. They're systematic.
 
-**Code reference:** `src/lib/goals/taxonomy.ts`, `src/lib/goals/intake.ts`,
-ADR-005 in `docs/architecture/decisions/ADR-005-goal-taxonomy.md`.
+**Second, the expert layer is misaligned with what customers actually want.** Customers hire experts to deliver outcomes — maximize my refund, don't get me audited, plan for a life event. But today's TurboTax Live has no goal capture, no recommendation ranking by goal fit, and evaluates experts on CSAT and average handle time rather than goal outcomes. The expert workbench is optimized for return throughput, not customer outcomes. That's the gap.
+
+This prototype demonstrates Big Bet B1 — a **Goal-Aligned Recommendation System** that closes that gap. The expert's workbench is no longer a data entry tool. It's a goal fulfillment engine.
 
 ---
 
-## Step 2 — Goal dashboard on the workbench (PRD §8 #2)
+## Act 3 — The Demo (6 min)
 
-**What you say:**
-> "The Goal Dashboard is the part of the workbench that didn't exist
-> before this PRD. Every recommendation in the queue carries a per-goal
-> fit score in [0,1], and the dashboard rolls them up by goal. As I
-> accept or reject items in the recommendation list on the right, the
-> ring on the left fills up — the expert is no longer optimizing for AHT,
-> they're optimizing for goal coverage."
+> **Live URL:** https://turbotax-vep.vercel.app
+> Click "Try the customer flow" to start.
 
-**What you click:**
-- The three columns of the Goal Dashboard. Hover the goal-fit pill on
-  each recommendation card; explain that those numbers come from
-  `score_recommendation` in `src/lib/recommendations/goal-fit.ts`, not
-  from the LLM.
-- The two pre-accepted recommendations (`rec-001` RSU double-count and
-  `rec-006` HSA Form 8889) — these are the ones already showing as
-  "Resolved" against the Maximize Refund goal.
+### 3a. Customer Intake (1 min)
 
-**Why it matters:** This is the surface that converts the workbench from
-a return-throughput tool into a goal-fulfillment tool.
+> *Navigate to: `/start`*
 
----
+The flow begins from the customer's perspective. They enter their name, filing status, and AGI band. Then they select which tax documents they're uploading from a visual card grid — W-2s, 1099s, 1098, HSA forms.
 
-## Step 3 — Ranked recommendation list tied to goals (PRD §8 #3)
+On the next screen, they pick three prioritized goals — maximize refund, minimize audit risk, optimize next year — each with a weight from 1 to 5.
 
-**What you say:**
-> "Six recommendations on the Mitchell return. Every one of them has:
-> a dollar impact, a confidence score, a per-goal fit, an evidence chain
-> that points back to the rules engine, an audit-risk delta, and a
-> 'why this matters for Olivia's stated goal' line. The list is generated
-> by the recommendation engine in three steps: deterministic rules engine
-> finds the lots, the LLM ranks and explains them, and a hallucination
-> filter drops anything whose `rule_id` isn't in the rules corpus.
-> ADR-003 — the deterministic layer is the safety net, never the
-> backup."
+**Why this matters:** This is the data that doesn't exist today. These goals become the scoring vector that ranks every recommendation the expert will see. The system optimizes for what the customer actually wants, not what's fastest to process.
 
-**What you click:**
-- Walk down the right rail. Hit the five must-appear items from the
-  golden file:
-  - `rsu-double-count-001` ($3,200 — Maximize Refund)
-  - `wash-sale-code-w-001` ($152 — Minimize Audit Risk)
-  - `section-469-passive-loss-001` ($1,425 — Maximize Refund)
-  - `hsa-form-8889-001` ($550 — Maximize Refund)
-  - `salt-cap-mfj-2025-001` ($30,000 — TY2026 Setup)
-- Plus the two ranking-only items: PTET election + retirement headroom.
+> *Submit the form. The handoff screen appears.*
 
-**Code reference:** `src/lib/recommendations/engine.ts:116`
-(`produce_recommendations`), `src/lib/rules/index.ts` (50-rule corpus),
-`src/data/golden-recommendations.json`, the `mitchell-rec-cassette.json`
-under `tests/recommendations/cassettes/`.
+### 3b. Expert Handoff (30 sec)
 
----
+> *The handoff screen shows: "Connecting you to Alex, your tax expert..."*
 
-## Step 4 — Routing rationale chip (PRD §8 #4)
+In production, this is where Smart Routing (Big Bet B5) matches the case to an expert by specialty, jurisdiction, complexity, and prior-year continuity. For this prototype, the routing is simulated, but the contract is real.
 
-**What you say:**
-> "Every other workbench in this category drops the expert into the case
-> with no context about why they got it. Big Bet B5 turns routing into a
-> marketplace; the prototype shows the chip the marketplace would emit.
-> 'Routed to you because: 5+ years RSU specialty, multi-state IL+CA,
-> prior-year preparer for this customer, complexity 8/10.' The routing
-> engine is mocked for the MVP — but the chip and the contract behind it
-> are not."
+> *Auto-navigates to the expert workbench.*
 
-**What you click:**
-- The top-left **Routing Rationale Chip** above the customer header.
-- Read the four chips out loud — they correspond to the four routing
-  dimensions in PRD §9.
+### 3c. Expert Workbench — Brief (1 min)
 
----
+> *Navigate to: Workbench > Brief section*
 
-## Step 5 — Pre-populated return surface with confidence + provenance (PRD §8 #5)
+Notice the app cue at the top — these contextual hints appear on every section, explaining what it demonstrates and why it matters. Dismiss them if you want the clean view.
 
-**What you say:**
-> "The Layer 1 Pre-Work engine has already populated every line on the
-> return from the source documents (mocked OCR for the prototype). Each
-> line carries a confidence score and a click-through to the source
-> document that fed it. When the expert disagrees, they edit in place.
-> When the edit is interesting, the next panel lights up."
+The Brief is the "punchline" screen. The expert sees the customer's name, filing status, AGI band, all uploaded documents, the three ranked goals, and key metrics: complexity score, 27 recommendations found, estimated total savings, and the savings range. This is the full customer context in one view — before the expert touches a single line on the return.
 
-**What you click:**
-- The **Return Surface** in the center. Hover a line — show the
-  confidence pill and the provenance source.
-- Click into 1040 line 7 (Capital Gain or Loss) to set up the next
-  step. Type any number into one of the editable cells.
+### 3d. Recommendations — Tiered and Goal-Ranked (2 min)
 
-**Code reference:** `components/workbench/ReturnSurface.tsx`,
-`src/lib/prework/index.ts:run_prework`, the YoY delta engine in
-`src/lib/prework/yoy-delta.ts`.
+> *Navigate to: Workbench > Recommendations section*
+
+This is the core of B1. Twenty-seven recommendations spanning all 13 rule categories, each segmented into **High**, **Medium**, and **Low** priority tiers.
+
+> *Click the tier filter tabs: High, Medium, Low, All*
+
+The tier classification is a composite of three signals: severity, goal-fit score, and dollar impact. Each recommendation card shows:
+- An IRC citation linking to the specific tax code section
+- A one-line summary and detail explaining the issue
+- Per-goal fit scores showing how well it advances each of the customer's stated goals
+- Dollar impact estimate with a range
+- Confidence score with a visual bar
+- The tier badge (High/Medium/Low)
+
+> *Point to rec-001: RSU double-count, $10.8K impact, 96% confidence*
+
+This one is the highest-impact finding. Olivia's RSU vest is being taxed twice — once on the W-2 and again on the 1099-B with zero cost basis. The recommendation engine detected it via the deterministic rules engine, the LLM ranked and explained it, and a hallucination filter verified the rule_id exists in the corpus. That three-layer pipeline — rules first, LLM second, hallucination guard always — is architectural decision ADR-003.
+
+### 3e. Share with Customer (30 sec)
+
+> *Check several high-priority recommendations, click "Share with customer"*
+
+The expert selects which recommendations to surface to the customer. This creates a two-way loop that didn't exist before: the expert's AI-powered findings are now presented to the customer in their own language for approval.
+
+### 3f. Customer Approval (1 min)
+
+> *Navigate to: `/review?intake=<id>`*
+
+Now we're back on the customer side. The customer sees only the recommendations the expert chose to share, presented with the same tier badges and dollar impacts. For each one, they can **Approve** or **Decline**.
+
+> *Approve a few, decline one, click "Confirm my decisions"*
+
+The customer's decisions are persisted and immediately visible to the expert. Back on the workbench, each recommendation now shows "Approved by customer" or "Declined by customer" badges. The expert knows what the customer cares about before they even pick up the phone.
+
+### 3g. Supporting Sections (30 sec, quick scan)
+
+> *Quick click through: Goals, Documents, Pre-work, Audit*
+
+- **Goals** — the scoring vector driving every recommendation
+- **Documents** — what the customer uploaded, cross-referenced in production with OCR (Big Bet B3)
+- **Pre-work** — AI has already flagged year-over-year changes, complexity, and risk before the expert opens the return
+- **Audit** — every AI suggestion and expert action captured. This is the data substrate for Big Bet B4 (Expert as Trainer). Expert decisions become labeled training data that makes the system smarter each tax season.
 
 ---
 
-## Step 6 — Live quality co-pilot (PRD §8 #6)
+## Act 4 — Success Measurement (1 min)
 
-**What you say:**
-> "I just edited a 1099-B line. The Quality Co-pilot watches the return
-> surface and runs deterministic consistency checks the moment an edit
-> lands. The wash-sale lots on Olivia's brokerage account include three
-> rows where `wash_sale_loss_disallowed > 0` but `code = null`. The
-> co-pilot flashes that mismatch in red and tells the expert exactly which
-> rows to fix. This is the demo plant — but the underlying check is the
-> same one the rules engine runs."
+Three KPIs to measure whether this is working:
 
-**What you click:**
-- The **Quality Co-pilot** card on the right rail. The "Wash-sale lot
-  mismatch" warning should be visible with a pulsing border for ~3
-  seconds after the edit.
+**1. First-touch return accuracy: +25% improvement**
+Measured by post-filing IRS notice rate. Today, mechanical errors like the RSU double-count slip through because there's no systematic detection layer. The 50-rule deterministic engine catches these before the expert even opens the return. Target: 25% reduction in IRS notices for returns processed through this system in TY2026.
 
-**Code reference:** `components/workbench/QualityCopilot.tsx:compute_warnings`.
+**2. Expert time per return: 30% additional reduction**
+On top of Intuit's stated ~20% AI-driven reduction in TY2025. The pre-work engine, risk register, and goal-ranked recommendations eliminate the discovery phase. The expert opens the case knowing exactly what to look at and in what order. On the synthetic Mitchell return (MFJ, $326K AGI, RSU + K-1 + rental + wash sales), the prototype demonstrates a <10 minute path versus the 25-35 minute legacy baseline.
+
+**3. Goal-fulfillment rate as the new primary metric**
+Replace CSAT + AHT as the expert evaluation signal. The goal dashboard tracks what percentage of the customer's stated goals were addressed by the recommendations the expert acted on. This metric directly aligns expert incentives with customer outcomes — the structural misalignment the research identified.
 
 ---
 
-## Step 7 — AI suggested question list (PRD §8 #7)
+## Act 5 — Adjacent Big Bets (1 min)
 
-**What you say:**
-> "Before the expert calls the customer, the AI ranks the questions
-> they should ask, by dollar impact and goal fit. Top of the list:
-> 'Ask Olivia whether the rental was rented at fair market value to a
-> related party — this changes passive loss treatment, $1,425 impact on
-> her Maximize Refund goal.' The expert opens the call with the
-> highest-leverage question instead of with 'so... tell me about your
-> taxes.'"
+B1 is the foundation. Two additional bets extend it into new distribution channels — both revenue-generating, both meeting customers where they already are.
 
-**What you click:**
-- The **Suggested Questions** card. Read the top two out loud. Each one
-  is keyed to a recommendation `id`.
+**Embedded tax prep via payroll.** Partner with ADP, Gusto, Rippling to surface TurboTax expert review inside the payroll experience. The employee finishes their last paycheck, the W-2 drops, and they get: "Want an expert to review your return?" Highest-intent moment, zero acquisition cost, net-new channel.
 
-**Code reference:** `components/workbench/SuggestedQuestions.tsx`.
+**TurboTax plugin for Claude and ChatGPT.** Millions of people are already using LLMs to draft and review taxes. That's a trust risk today — and a monetization opportunity tomorrow. A TurboTax plugin in the AI marketplace surfaces expert review, accuracy guarantees, and audit defense at the exact moment someone asks an LLM a tax question. It converts an AI accuracy gap into an Intuit revenue stream and opens an entirely new AI-native channel for tax prep.
+
+The architecture is the same: goal-aligned recommendations, deterministic safety net, expert matching, trust layer. Different distribution surfaces.
+
+That's the overview. Happy to go deeper on the research, the architecture decisions, or any of the bets.
 
 ---
 
-## Step 8 — "What AI saw" panel (PRD §8 #8)
-
-**What you say:**
-> "Trust is the variable Intuit's customer reviews keep pointing at —
-> the Washington Post test showed Intuit Assist was wrong on more than
-> half of test questions, and customers know it. The 'What AI Saw' panel
-> shows the redacted version of every prompt that went to the model.
-> Olivia's SSN, Ryan's SSN, the employer EIN, the rental property
-> address — all tokenized via `redact_prompt` before the prompt left the
-> process. No raw PII ever touched the wire. ADR-006 covers the strategy."
-
-**What you click:**
-- The **What AI Saw** card, bottom-left. Highlight the `[SSN_001]`,
-  `[EIN_001]`, `[ADDRESS_001]` tokens in the visible prompt body.
-- Mention that the integration test in `tests/integration/end-to-end.test.ts`
-  asserts zero raw `\b\d{3}-\d{2}-\d{4}\b` matches in the redacted prompt.
-
-**Code reference:** `src/lib/pii/redact.ts:redact_prompt`,
-`docs/architecture/decisions/ADR-006-pii-redaction-strategy.md`.
-
----
-
-## Step 9 — Audit trail timeline (PRD §8 #9)
-
-**What you say:**
-> "Every AI suggestion, every expert action, every edit — captured to
-> SQLite with a timestamp, an actor, and the prompt-hash that produced
-> it. This is the data substrate Big Bet B4 (Expert as Trainer) compounds
-> on top of. Every accept becomes a positive label, every reject becomes
-> a negative label. After three seasons we have ten million labeled
-> expert decisions and a model nobody outside Intuit can replicate."
-
-**What you click:**
-- The **Audit Trail Timeline** card, bottom-right. Walk down the events:
-  the LLM call, the two acceptances, any reject/override, and the
-  redacted-prompt hash.
-
-**Code reference:** `src/lib/audit/capture.ts`,
-`docs/architecture/decisions/ADR-004-sqlite-for-audit-trail.md`.
-
----
-
-## Step 10 — Expert minutes counter (PRD §8 #10)
-
-**What you say:**
-> "Top right of the screen, the **Expert Minutes Counter** is ticking
-> against two baselines: the legacy 25-to-35 minute number for a return
-> like this one, and Intuit's stated TY2025 ~20% AI-driven reduction.
-> The MVP target on the synthetic Mitchell return is under 10 minutes
-> wall-clock. The bigger production target in PRD §9 is a combined ~50%
-> reduction off the legacy baseline. This counter is the metric that
-> closes the loop on the demo — every panel above this one exists to
-> push that number down without sacrificing accuracy."
-
-**What you click:**
-- The **Expert Minutes Counter** in the top-right corner. Note the two
-  comparison bars (legacy vs TY2025 baseline) and the green "under
-  target" state.
-
----
-
-## Bonus — `/metrics` dashboard (T-603)
-
-**What you say:**
-> "I built a separate `/metrics` route that walks every success metric
-> from PRD §9 against the live test suite. Goal dashboard coverage,
-> recommendation recall against the golden file, expert-minutes target,
-> calibration drift on the 50-return synthetic test set, PII leakage
-> count, routing chip dimension count, audit-trail capture coverage,
-> auto-close rate. This is the page the program manager would screenshot
-> for a roadmap review."
-
-**What you click:**
-- Navigate to `http://localhost:3000/metrics`. Read the column headers,
-  point at the green checks, mention which tests back each row.
-
----
-
-## Closing
-
-**What you say:**
-> "What you just saw is one big bet — B1 — fully built on the existing
-> Layer 3 surface, with the other three layers either real (Pre-Work,
-> Trust) or stubbed at a contract boundary (Routing). The same six-agent
-> contract-bounded build I used to ship this prototype is the same shape
-> Intuit could use to ship the production version on GenOS:
-> deterministic rules engine first, LLM ranking second, audit trail
-> always-on, goal vector as the new primary KPI. Every code path you saw
-> is covered by the integration test in `tests/integration/end-to-end.test.ts`,
-> and the full 260-test Vitest suite gates every commit."
-
----
-
-## Demo recovery script (if something breaks live)
+## Appendix — Demo Recovery
 
 | Symptom | Recovery |
 |---|---|
-| Blank panel | Hard reload — fixtures hydrate first, so the only way the panel is empty is a build error. Run `npx tsc --noEmit` in another terminal. |
-| Recommendations panel shows fixture data only | Cassette is missing. Rerun `RECORD_CASSETTES=1 npm test -- tests/recommendations/engine.test.ts` to regenerate it (live API call, ~$0.04). |
-| Quality Co-pilot doesn't flash | The wash-sale warning only triggers on edits to lines starting with `1040.line.7` or `8949`. Click directly into a 1099-B row and re-edit. |
-| `/api/recommendations` returns 500 | The route logs the underlying error in the dev server output. The most common cause during development is a missing `ANTHROPIC_API_KEY` combined with `RECORD_CASSETTES=1`. Unset `RECORD_CASSETTES` to fall back to the cassette. |
+| Blank section | Hard reload. Fixtures hydrate first; the page never depends on a live API call. |
+| Recommendations show 8 instead of 27 | Clear browser cache. The fixture was expanded in Sprint 4. |
+| `/review` shows "No selections" | Run the full flow: `/start` -> goals -> `/handoff` -> `/workbench` -> share recs -> then open `/review?intake=<id>` |
+| Approval badges not showing on expert side | Wait 5 seconds (polling interval) or refresh the workbench page. |
 
----
+## Appendix — Technical Reference
 
-## Appendix — what was deliberately left out of this script
-
-- **B2 Multi-Year Tax Co-Pilot:** the goal vector and audit trail are
-  the data substrate, but the connected-accounts layer is Phase 2.
-- **B4 Expert-as-Trainer learning loop:** the capture layer is live;
-  the quarterly fine-tune cadence is documented in PRD §10 but not
-  executed in the prototype.
-- **B5 Routing marketplace:** the rationale chip is real, the matching
-  engine is mocked.
-- **Real OCR:** the Mitchell return is hand-crafted; production would
-  layer this on top of the existing 200+ partner ingestion fabric.
-- **Real authentication & multi-tenancy:** single hard-coded expert
-  ("Anshul, EA") per ADR-008, no organizations, no Stripe.
-
-These are tracked in `backlog/sprint-02-plus.md`.
+| Item | Detail |
+|---|---|
+| Live URL | https://turbotax-vep.vercel.app |
+| GitHub | github.com/AnshulKummar/turbotax-vep (private) |
+| PRD | `docs/PRD.md` |
+| Architecture | 4-layer: Pre-Work, Smart Routing, Expert Workbench, Trust & Learning |
+| Tests | 447 across 64 files (Vitest) |
+| Routes | 15 (3 customer, 5 API, 7 app) |
+| Cost per demo visitor | $0 (cassette replay, no live LLM calls) |
+| Synthetic return | Olivia & Ryan Mitchell, MFJ, AGI ~$326K, RSU + K-1 + rental + HSA + wash sales + multi-state IL+CA |
+| Recommendations | 27 across 13 rule categories, segmented High/Medium/Low |
+| Rule corpus | 50 deterministic tax rules |
+| Stack | Next.js 16, React 19, TypeScript, Tailwind 4, Drizzle + Neon Postgres, Claude Sonnet 4.6 |
