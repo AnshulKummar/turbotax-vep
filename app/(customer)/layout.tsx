@@ -24,6 +24,10 @@ export default function CustomerLayout({
         </p>
       </header>
 
+      <p className="lg:hidden text-center text-xs text-[var(--muted-foreground)] py-2">
+        Best viewed on desktop
+      </p>
+
       <div className="mx-auto w-full max-w-3xl px-5 pt-4">
         <DisclaimerBanner />
       </div>
