@@ -2,6 +2,13 @@
 
 After Sprint 1 ships the MVP demo of B1, the post-MVP roadmap is structured by big bet rather than by sprint, because each big bet is a multi-sprint workstream.
 
+> **Sprint 2 has been carved out as a concrete sprint.** See `sprint-02.md`.
+> Sprint 2's goal is to take the Sprint 1 prototype and make it a publicly
+> deployable, anyone-can-try-it demonstration of B1 with a real intake UI,
+> a Postgres-backed audit trail, and a Vercel deployment on the
+> auto-assigned `*.vercel.app` URL. A custom domain is a Sprint 3 follow-up.
+> The big-bet workstreams below pick up after Sprint 2 lands.
+
 ## B2 — Multi Year Tax Co Pilot
 
 - Connected accounts data layer (Plaid, brokerage data partnerships from existing 200+ Intuit partners, IRS transcript pull, secure document vault)
