@@ -35,8 +35,11 @@ coverage/
 # SQLite local DB
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
+data/
 
 # Defense in depth: keep older PRD revisions and any private review notes out of the repo
 PRD_v0.*.md
