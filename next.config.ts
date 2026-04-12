@@ -1,6 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // The recommendation engine reads a committed cassette at runtime via
+  // `path.resolve(process.cwd(), "tests/recommendations/cassettes/...")`.
+  // Because the path is built dynamically, Next's Output File Tracing can't
+  // detect it, so we explicitly whitelist the cassette for every route that
+  // runs `produce_recommendations` on the server.
+  outputFileTracingIncludes: {
+    "/api/recommendations": [
+      "./tests/recommendations/cassettes/**/*.json",
+    ],
+    "/workbench": [
+      "./tests/recommendations/cassettes/**/*.json",
+    ],
+  },
   async headers() {
     return [
       {
