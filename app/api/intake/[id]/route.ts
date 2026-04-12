@@ -41,5 +41,11 @@ export async function GET(
     ...(row.customer_metadata !== undefined
       ? { customer_metadata: row.customer_metadata }
       : {}),
+    ...(row.selected_recommendations !== undefined
+      ? { selected_recommendations: row.selected_recommendations }
+      : {}),
+    ...(row.customer_approvals !== undefined
+      ? { customer_approvals: row.customer_approvals }
+      : {}),
   });
 }

@@ -17,6 +17,7 @@ import { ReturnSurface } from "../ReturnSurface";
 import { RiskRegister } from "../RiskRegister";
 import { SuggestedQuestions } from "../SuggestedQuestions";
 import { QualityCopilot } from "../QualityCopilot";
+import { AppCue } from "../AppCue";
 
 interface PreworkSectionProps {
   prework: PreWorkResponse;
@@ -35,6 +36,10 @@ export function PreworkSection({
 }: PreworkSectionProps) {
   return (
     <div className="space-y-4" data-testid="prework-section">
+      <AppCue
+        title="AI Pre-Work"
+        body="Before the expert opens the return, the AI has already flagged year-over-year changes, scored complexity, and built a risk register. This is Big Bet B3 in action — autonomous pre-work that saves expert time."
+      />
       <h2 className="text-[15px] font-semibold text-white">
         Pre-work Analysis
       </h2>

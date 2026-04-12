@@ -7,6 +7,7 @@ import {
   get_documents_by_ids,
   type DemoDocument,
 } from "../../../src/lib/customer/documents";
+import { AppCue } from "../AppCue";
 
 interface DocumentsSectionProps {
   document_ids?: string[];
@@ -26,6 +27,10 @@ export function DocumentsSection({ document_ids }: DocumentsSectionProps) {
   if (documents.length === 0) {
     return (
       <div className="space-y-4" data-testid="documents-section">
+        <AppCue
+          title="Document Awareness"
+          body="The expert sees exactly which documents the customer uploaded. In production, these would be OCR-parsed and cross-referenced against the return for anomaly detection (Big Bet B3)."
+        />
         <h2 className="text-[15px] font-semibold text-white">Documents</h2>
         <div className="glass-card px-5 py-8 text-center">
           <p className="text-[13px] text-[var(--muted-foreground)]">
@@ -41,6 +46,10 @@ export function DocumentsSection({ document_ids }: DocumentsSectionProps) {
 
   return (
     <div className="space-y-4" data-testid="documents-section">
+      <AppCue
+        title="Document Awareness"
+        body="The expert sees exactly which documents the customer uploaded. In production, these would be OCR-parsed and cross-referenced against the return for anomaly detection (Big Bet B3)."
+      />
       <h2 className="text-[15px] font-semibold text-white">
         Documents ({documents.length})
       </h2>

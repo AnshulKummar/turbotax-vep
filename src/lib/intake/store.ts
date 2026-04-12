@@ -25,10 +25,15 @@ import { eq, sql } from "drizzle-orm";
 
 import type { Goal } from "@/contracts";
 import type { CustomerMetadata } from "@/lib/intake/metadata";
+import type { Approvals, Selections } from "@/lib/intake/selections";
 
 import { get_db } from "@/lib/audit/db";
 import { intake_sessions } from "@/lib/audit/schema";
 import { validate_customer_metadata } from "@/lib/intake/metadata";
+import {
+  validate_approvals,
+  validate_selections,
+} from "@/lib/intake/selections";
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -48,6 +53,8 @@ export interface GetIntakeResult {
   goals: Goal[];
   expires_at: Date;
   customer_metadata?: CustomerMetadata;
+  selected_recommendations?: Selections;
+  customer_approvals?: Approvals;
 }
 
 /**
@@ -112,6 +119,8 @@ export async function get_intake(
       goals: intake_sessions.goals,
       expires_at: intake_sessions.expires_at,
       customer_metadata: intake_sessions.customer_metadata,
+      selected_recommendations: intake_sessions.selected_recommendations,
+      customer_approvals: intake_sessions.customer_approvals,
     })
     .from(intake_sessions)
     .where(eq(intake_sessions.intake_id, intake_id))
@@ -137,12 +146,102 @@ export async function get_intake(
     customer_metadata = undefined;
   }
 
+  // Parse selected_recommendations safely.
+  let selected_recommendations: Selections | undefined;
+  try {
+    if (row.selected_recommendations != null) {
+      selected_recommendations = validate_selections(
+        row.selected_recommendations,
+      );
+    }
+  } catch (err) {
+    console.error(
+      `get_intake(${intake_id}): corrupt selected_recommendations, returning undefined`,
+      err,
+    );
+    selected_recommendations = undefined;
+  }
+
+  // Parse customer_approvals safely.
+  let customer_approvals: Approvals | undefined;
+  try {
+    if (row.customer_approvals != null) {
+      customer_approvals = validate_approvals(row.customer_approvals);
+    }
+  } catch (err) {
+    console.error(
+      `get_intake(${intake_id}): corrupt customer_approvals, returning undefined`,
+      err,
+    );
+    customer_approvals = undefined;
+  }
+
   // The jsonb column round-trips as the same Goal[] shape we inserted.
   return {
     goals: row.goals as Goal[],
     expires_at,
     customer_metadata,
+    selected_recommendations,
+    customer_approvals,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Sprint 4 — selections + approvals persistence (T-I05)
+// ---------------------------------------------------------------------------
+
+/**
+ * Persist the expert's selected recommendation IDs on a live intake session.
+ * Rejects if the intake does not exist or has expired.
+ */
+export async function update_selections(
+  intake_id: number,
+  selections: string[],
+): Promise<void> {
+  if (!Number.isFinite(intake_id) || intake_id <= 0) {
+    throw new Error("update_selections: intake_id must be a positive integer");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = get_db() as any;
+  const result = await db
+    .update(intake_sessions)
+    .set({ selected_recommendations: selections })
+    .where(
+      sql`${intake_sessions.intake_id} = ${intake_id} AND ${intake_sessions.expires_at} > NOW()`,
+    )
+    .returning({ intake_id: intake_sessions.intake_id });
+
+  if (result.length === 0) {
+    throw new Error("update_selections: intake not found or expired");
+  }
+}
+
+/**
+ * Persist the customer's approval/decline decisions on a live intake session.
+ * Rejects if the intake does not exist or has expired.
+ */
+export async function update_approvals(
+  intake_id: number,
+  approvals: { approved: string[]; declined: string[] },
+): Promise<void> {
+  if (!Number.isFinite(intake_id) || intake_id <= 0) {
+    throw new Error("update_approvals: intake_id must be a positive integer");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = get_db() as any;
+  const result = await db
+    .update(intake_sessions)
+    .set({ customer_approvals: approvals })
+    .where(
+      sql`${intake_sessions.intake_id} = ${intake_id} AND ${intake_sessions.expires_at} > NOW()`,
+    )
+    .returning({ intake_id: intake_sessions.intake_id });
+
+  if (result.length === 0) {
+    throw new Error("update_approvals: intake not found or expired");
+  }
 }
 
 /**

@@ -48,6 +48,16 @@ seconds end-to-end.
 - [ ] Verify disclaimer banner is present on `/start`, `/handoff`, and
       `/workbench`
 
+### Sprint 4 — Recommendation tiers + customer approval
+
+- [ ] Navigate to `/workbench` → Recommendations section shows 27 recs with tier badges (High/Medium/Low)
+- [ ] Tier filter tabs work (All/High/Medium/Low) with correct counts
+- [ ] App cues visible on all 6 workbench sections (dismissible)
+- [ ] Select recommendations and click "Share with customer" → success toast
+- [ ] Navigate to `/review?intake=<id>` → shows shared recommendations
+- [ ] Approve/decline recommendations → submit → success message
+- [ ] Return to expert workbench → approval status badges visible
+
 ### Quick expert view (skip customer flow)
 
 - [ ] `GET /workbench` (no intake param) — loads with default Mitchell
@@ -100,6 +110,9 @@ npm test -- tests/integration/sprint2-e2e.test.ts
 
 # Sprint 3 flow (customer metadata + goals → workbench)
 npm test -- tests/integration/sprint3-e2e.test.ts
+
+# Sprint 4 flow (tiers + selections + approvals)
+npm test -- tests/integration/sprint4-e2e.test.ts
 
 # All tests
 npm test

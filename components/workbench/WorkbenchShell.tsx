@@ -101,6 +101,7 @@ export interface WorkbenchShellProps {
   return_data: TaxReturn;
   customer_context: CustomerContext;
   audit_id: number;
+  intake_id?: number;
   initial_section?: string;
 }
 
@@ -132,6 +133,7 @@ export function WorkbenchShell({
   return_data,
   customer_context,
   audit_id,
+  intake_id,
   initial_section,
 }: WorkbenchShellProps) {
   const [activeSection, setActiveSection] = useState<SectionId>(
@@ -156,6 +158,53 @@ export function WorkbenchShell({
     lineId: LineId;
     value: string;
   } | null>(null);
+
+  // ------- Share / approval state (Sprint 4 T-J04/T-J05) -------
+  const [sharedRecIds, setSharedRecIds] = useState<Set<string>>(new Set());
+  const [customerApprovals, setCustomerApprovals] = useState<{
+    approved: string[];
+    declined: string[];
+  } | null>(null);
+
+  const handleShareRecommendations = useCallback(
+    async (recIds: string[]) => {
+      if (!intake_id) return;
+      const res = await fetch(`/api/intake/${intake_id}/selections`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ selections: recIds }),
+      });
+      if (res.ok) {
+        setSharedRecIds(new Set(recIds));
+      }
+    },
+    [intake_id],
+  );
+
+  // Poll for customer approvals when viewing recommendations and recs are shared
+  useEffect(() => {
+    if (activeSection !== "recommendations" || !intake_id || sharedRecIds.size === 0) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/intake/${intake_id}`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.customer_approvals) {
+            setCustomerApprovals(data.customer_approvals);
+          }
+        }
+      } catch {
+        // Network error — retry on next interval
+      }
+    };
+    void poll();
+    const interval = setInterval(poll, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [activeSection, intake_id, sharedRecIds.size]);
 
   useEffect(() => {
     void (async () => {
@@ -399,6 +448,10 @@ export function WorkbenchShell({
               goals={goals}
               recommendations={recommendations}
               redactedPrompt={redactedPrompt}
+              intakeId={intake_id}
+              onShareRecommendations={intake_id ? handleShareRecommendations : undefined}
+              sharedRecIds={sharedRecIds}
+              customerApprovals={customerApprovals}
             />
           )}
           {activeSection === "audit" && (

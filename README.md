@@ -8,13 +8,21 @@ An independent product review and working prototype of a redesigned **TurboTax V
 
 The prototype now delivers the full **customer-to-expert journey** for Big Bet B1. A visitor plays the role of a TurboTax customer: enters a synthetic name, picks a filing status and AGI band, selects tax documents from a card grid, then chooses three prioritized goals. After a branded handoff transition, the visitor arrives at a redesigned expert workbench with left-hand navigation and six sections (Brief, Goals, Documents, Pre-work, Recommendations, Audit). The recommendation engine re-ranks expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations.
 
-### Three demo paths
+### Four demo paths
 
 1. **Full customer flow:** `/` → `/start` → fill info + pick documents + select goals → `/handoff` → `/workbench?intake=<id>&section=brief` (expert view with customer context)
 2. **Quick expert view:** `/workbench` — loads with default Mitchell goals, skips the customer flow entirely
-3. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
+3. **Customer review:** `/review?intake=<id>` — customer approves or declines expert-shared recommendations
+4. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
 
-The app serves 12 routes. Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
+The app serves 13 routes. Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
+
+### Sprint 4: Recommendation approval flow
+
+- **27 recommendations** segmented into High, Medium, and Low priority tiers based on severity, goal-fit, and dollar impact
+- **App cues** on all 6 workbench sections explaining what each demonstrates for demo viewers (dismissible)
+- **Two-way recommendation loop:** expert selects recommendations to share → customer reviews at `/review?intake=<id>` with approve/decline toggles → expert sees approval status badges on each card
+- **Tier filter tabs** (All/High/Medium/Low) with counts on the Recommendations section
 
 Read more:
 

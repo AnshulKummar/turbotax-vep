@@ -5,6 +5,7 @@
  */
 import Link from "next/link";
 import type { Goal } from "../../../src/contracts";
+import { AppCue } from "../AppCue";
 
 interface GoalsSectionProps {
   goals: Goal[];
@@ -26,6 +27,11 @@ const GOAL_LABEL: Record<string, string> = {
 export function GoalsSection({ goals }: GoalsSectionProps) {
   return (
     <div className="space-y-4" data-testid="goals-section">
+      <AppCue
+        title="Goal-Aligned System"
+        body="These are the customer's stated goals, captured at intake. Every recommendation is scored against these goals. This is the B1 anchor: the system optimizes for customer outcomes, not return throughput."
+      />
+
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-semibold text-white">
           Customer Goals

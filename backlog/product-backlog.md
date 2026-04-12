@@ -7,6 +7,7 @@
 | Sprint 1 (MVP) | Complete |
 | Sprint 2 (Public demo) | Complete + deployed |
 | Sprint 3 (Customer flow + expert redesign) | Complete |
+| Sprint 4 (App cues + rec tiers + customer approval) | Complete |
 
 ## Epics
 
@@ -22,10 +23,13 @@
 | E12 | Document upload simulation | B1 customer surface | Sprint 3 |
 | E13 | Expert workbench redesign (left-nav, section-based) | B1 expert surface | Sprint 3 |
 | E14 | Customer-to-expert handoff transition | B1 end-to-end narrative | Sprint 3 |
-| E7 | Multi year tax co pilot | B2 | Sprint 4+ |
-| E8 | Real OCR and partner ingestion | B3 production | Sprint 4+ |
-| E9 | Routing marketplace, full | B5 production | Sprint 4+ |
-| E10 | Expert as trainer learning loop, full pipeline | B4 production | Sprint 4+ |
+| E15 | App cues for demo viewers | B1 narrative clarity | Sprint 4 |
+| E16 | Recommendation tier segmentation (high/medium/low) | B1 recommendation surface | Sprint 4 |
+| E17 | Customer recommendation approval flow | B1 two-way recommendation loop | Sprint 4 |
+| E7 | Multi year tax co pilot | B2 | Sprint 5+ |
+| E8 | Real OCR and partner ingestion | B3 production | Sprint 5+ |
+| E9 | Routing marketplace, full | B5 production | Sprint 5+ |
+| E10 | Expert as trainer learning loop, full pipeline | B4 production | Sprint 5+ |
 
 ## Epic detail
 
@@ -58,6 +62,15 @@ Sprint 3. Replace the stacked-panel workbench with a section-based layout: `Work
 
 ### E14 — Customer-to-expert handoff transition
 Sprint 3. `/handoff` page with a 1.8-second visual transition: "Connecting you to Alex, your tax expert." Shows summary of what was shared (goals + documents). Auto-redirects to `/workbench?intake=<id>&section=brief`. Zero server work, zero LLM calls — pure client-side choreography. The transition is the narrative punchline where "B1 = goal-aligned recommendations" clicks for the viewer.
+
+### E15 — App cues for demo viewers
+Sprint 4. Contextual hint banners on each of the 6 workbench sections explaining what the section demonstrates and why it matters for the B1 goal-aligned recommendation thesis. Dismissible per-section. Styled as subtle glass-card banners with left accent border. Helps recruiters and reviewers understand the product strategy without a separate walkthrough.
+
+### E16 — Recommendation tier segmentation (high/medium/low)
+Sprint 4. Expand the recommendation fixture from 8 to ~27 items covering all 13 rule categories. Each recommendation is classified into a high, medium, or low tier based on a composite of severity, goal-fit, and dollar impact. The expert workbench shows tier badges on each card and filter tabs (All/High/Medium/Low) at the top of the Recommendations section.
+
+### E17 — Customer recommendation approval flow
+Sprint 4. Two-way recommendation loop: the expert selects recommendations to surface to the customer, the customer sees them on a new `/review?intake=<id>` page with approve/decline toggles, submits decisions, and the expert sees the customer's approval status on each recommendation card. New DB columns (`selected_recommendations`, `customer_approvals` JSONB) on `intake_sessions`. Two new API routes for selections and approvals. No new LLM calls.
 
 ### E7 — Multi year tax co pilot
 Sprint 4+. Connected accounts data layer, tax planning simulation engine, event-based trigger system, expert outreach queue, customer-facing year-round tax health dashboard.

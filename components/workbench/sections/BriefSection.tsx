@@ -9,6 +9,7 @@ import type { Goal, Recommendation, RuleFinding } from "../../../src/contracts";
 import { get_documents_by_ids } from "../../../src/lib/customer/documents";
 import { formatUsd } from "../lib/format";
 import type { SectionId } from "../WorkbenchShell";
+import { AppCue } from "../AppCue";
 
 interface BriefSectionProps {
   customer_name: string;
@@ -79,6 +80,11 @@ export function BriefSection({
 
   return (
     <div className="space-y-4" data-testid="brief-section">
+      <AppCue
+        title="Why this matters"
+        body="This summary shows how the customer's stated goals drive every recommendation. The expert sees the full picture — goals, documents, and key metrics — in one view before diving into details."
+      />
+
       {/* Customer overview card */}
       <section className="glass-card px-5 py-5">
         <h2 className="text-[18px] font-semibold text-white">{customer_name}</h2>

@@ -17,6 +17,8 @@ import {
   _insert_intake_with_expiry,
   create_intake,
   get_intake,
+  update_approvals,
+  update_selections,
 } from "@/lib/intake/store";
 
 import type { CustomerMetadata } from "@/lib/intake/metadata";
@@ -147,5 +149,101 @@ describe("create_intake / get_intake with customer_metadata", () => {
     const fetched = await get_intake(created.intake_id);
     expect(fetched).not.toBeNull();
     expect(fetched!.customer_metadata).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sprint 4 — selections + approvals round-trip tests (T-I09)
+// ---------------------------------------------------------------------------
+
+describe("update_selections / update_approvals round-trip", () => {
+  it("stores and retrieves selections", async () => {
+    const created = await create_intake(sample_input);
+    const selections = ["rec-001", "rec-002", "rec-005"];
+
+    await update_selections(created.intake_id, selections);
+
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.selected_recommendations).toEqual(selections);
+  });
+
+  it("stores and retrieves approvals", async () => {
+    const created = await create_intake(sample_input);
+    const selections = ["rec-001", "rec-002", "rec-003"];
+    await update_selections(created.intake_id, selections);
+
+    const approvals = {
+      approved: ["rec-001", "rec-002"],
+      declined: ["rec-003"],
+    };
+    await update_approvals(created.intake_id, approvals);
+
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.customer_approvals).toEqual(approvals);
+  });
+
+  it("returns undefined for selections when not yet set", async () => {
+    const created = await create_intake(sample_input);
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.selected_recommendations).toBeUndefined();
+  });
+
+  it("returns undefined for approvals when not yet set", async () => {
+    const created = await create_intake(sample_input);
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.customer_approvals).toBeUndefined();
+  });
+
+  it("rejects update_selections for non-existent intake", async () => {
+    await expect(
+      update_selections(9_999_999, ["rec-001"]),
+    ).rejects.toThrow(/not found or expired/);
+  });
+
+  it("rejects update_approvals for non-existent intake", async () => {
+    await expect(
+      update_approvals(9_999_999, { approved: ["rec-001"], declined: [] }),
+    ).rejects.toThrow(/not found or expired/);
+  });
+
+  it("rejects update_selections for expired intake", async () => {
+    const past = new Date(Date.now() - 60_000);
+    const intake_id = await _insert_intake_with_expiry({
+      ...sample_input,
+      expires_at: past,
+    });
+    await expect(
+      update_selections(intake_id, ["rec-001"]),
+    ).rejects.toThrow(/not found or expired/);
+  });
+
+  it("rejects update_approvals for expired intake", async () => {
+    const past = new Date(Date.now() - 60_000);
+    const intake_id = await _insert_intake_with_expiry({
+      ...sample_input,
+      expires_at: past,
+    });
+    await expect(
+      update_approvals(intake_id, { approved: ["rec-001"], declined: [] }),
+    ).rejects.toThrow(/not found or expired/);
+  });
+
+  it("rejects non-positive intake_id for update_selections", async () => {
+    await expect(update_selections(0, ["rec-001"])).rejects.toThrow(
+      /positive integer/,
+    );
+    await expect(update_selections(-1, ["rec-001"])).rejects.toThrow(
+      /positive integer/,
+    );
+  });
+
+  it("rejects non-positive intake_id for update_approvals", async () => {
+    await expect(
+      update_approvals(0, { approved: [], declined: [] }),
+    ).rejects.toThrow(/positive integer/);
   });
 });

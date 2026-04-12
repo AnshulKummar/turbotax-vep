@@ -42,6 +42,7 @@ interface ResolvedIntake {
   findings: RuleFinding[];
   customer_context: CustomerContext;
   audit_id: number;
+  intake_id?: number;
   customer_metadata?: CustomerMetadata;
 }
 
@@ -89,6 +90,7 @@ async function resolve_intake(
       findings,
       customer_context,
       audit_id,
+      intake_id,
       customer_metadata: row.customer_metadata,
     },
   };
@@ -186,6 +188,7 @@ export default async function WorkbenchPage({
         return_data={mitchell_return}
         customer_context={data.customer_context}
         audit_id={data.audit_id}
+        intake_id={data.intake_id}
         initial_section={section}
       />
       <PublicFooter />

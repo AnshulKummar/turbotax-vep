@@ -122,6 +122,8 @@ export const intake_sessions = pgTable(
     user_agent_hash: text("user_agent_hash").notNull(),
     expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
     customer_metadata: jsonb("customer_metadata"),
+    selected_recommendations: jsonb("selected_recommendations"),
+    customer_approvals: jsonb("customer_approvals"),
   },
   (t) => [index("idx_intake_sessions_expires_at").on(t.expires_at)],
 );

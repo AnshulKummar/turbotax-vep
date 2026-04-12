@@ -20,3 +20,9 @@ export const RECOMMENDATIONS_RATE_LIMIT_MAX = 40;
 
 /** /api/prework — same profile as recommendations. */
 export const PREWORK_RATE_LIMIT_MAX = 40;
+
+/** /api/intake/[id]/selections — Sprint 4 expert selections. */
+export const SELECTIONS_RATE_LIMIT_MAX = 40;
+
+/** /api/intake/[id]/approvals — Sprint 4 customer approvals. */
+export const APPROVALS_RATE_LIMIT_MAX = 40;
