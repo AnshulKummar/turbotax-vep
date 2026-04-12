@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DisclaimerBanner } from "../components/public/DisclaimerBanner";
+import { PublicFooter } from "../components/public/PublicFooter";
+
 // T-704 — public landing page. Replaces the Sprint 1 stub that redirected
 // straight to /workbench. Server-rendered on purpose: no client JS, no
 // data fetching, no external fonts beyond the one already loaded by the
@@ -40,7 +43,11 @@ export default function LandingPage() {
           </a>
         </nav>
 
-        <section className="mt-14 flex flex-col items-start gap-6 sm:mt-24">
+        <div className="mt-6">
+          <DisclaimerBanner />
+        </div>
+
+        <section className="mt-10 flex flex-col items-start gap-6 sm:mt-16">
           <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-violet-200">
             Big Bet B1 · Live Prototype
           </span>
@@ -134,24 +141,9 @@ export default function LandingPage() {
           </p>
         </section>
 
-        <footer className="mt-16 flex flex-col gap-2 border-t border-white/10 pt-6 text-[11px] text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            Built by{" "}
-            <span className="font-medium text-white">Anshul Kummar</span>.
-            Not affiliated with Intuit.
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="transition hover:text-white"
-            >
-              GitHub
-            </a>
-            <span>Synthetic data only &mdash; do not enter real personal information.</span>
-          </div>
-        </footer>
+        <div className="mt-16">
+          <PublicFooter />
+        </div>
       </main>
     </div>
   );
