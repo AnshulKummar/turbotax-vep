@@ -110,16 +110,21 @@ export const calibration_runs = pgTable("calibration_runs", {
 // intake_sessions — T-703 public Sprint 2 demo intake persistence
 // ---------------------------------------------------------------------------
 
-export const intake_sessions = pgTable("intake_sessions", {
-  intake_id: serial("intake_id").primaryKey(),
-  captured_at: timestamp("captured_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  goals: jsonb("goals").notNull(),
-  ip_hash: text("ip_hash").notNull(),
-  user_agent_hash: text("user_agent_hash").notNull(),
-  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
-});
+export const intake_sessions = pgTable(
+  "intake_sessions",
+  {
+    intake_id: serial("intake_id").primaryKey(),
+    captured_at: timestamp("captured_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    goals: jsonb("goals").notNull(),
+    ip_hash: text("ip_hash").notNull(),
+    user_agent_hash: text("user_agent_hash").notNull(),
+    expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
+    customer_metadata: jsonb("customer_metadata"),
+  },
+  (t) => [index("idx_intake_sessions_expires_at").on(t.expires_at)],
+);
 
 // ---------------------------------------------------------------------------
 // Compatibility surface for legacy callers (tests)

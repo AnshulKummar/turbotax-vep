@@ -1,5 +1,5 @@
 /**
- * Intake session persistence — T-703.
+ * Intake session persistence — T-703 + Sprint 3 T-E03.
  *
  * Backs the public Sprint 2 demo flow:
  *   POST /api/intake     → create_intake() → returns {intake_id}
@@ -14,14 +14,21 @@
  *
  * TTL: 7 days. `expires_at` is set on insert and checked on read; an
  * expired row is treated as missing.
+ *
+ * Sprint 3 addition: optional `customer_metadata` (JSONB). The column is
+ * intentionally schemaless at the DB level but schema-validated in
+ * TypeScript via validate_customer_metadata — this allows schema evolution
+ * without migrations.
  */
 
 import { eq, sql } from "drizzle-orm";
 
 import type { Goal } from "@/contracts";
+import type { CustomerMetadata } from "@/lib/intake/metadata";
 
 import { get_db } from "@/lib/audit/db";
 import { intake_sessions } from "@/lib/audit/schema";
+import { validate_customer_metadata } from "@/lib/intake/metadata";
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -29,6 +36,7 @@ export interface CreateIntakeInput {
   goals: Goal[];
   ip_hash: string;
   user_agent_hash: string;
+  customer_metadata?: CustomerMetadata;
 }
 
 export interface CreateIntakeResult {
@@ -39,6 +47,7 @@ export interface CreateIntakeResult {
 export interface GetIntakeResult {
   goals: Goal[];
   expires_at: Date;
+  customer_metadata?: CustomerMetadata;
 }
 
 /**
@@ -70,6 +79,7 @@ export async function create_intake(
       ip_hash: input.ip_hash,
       user_agent_hash: input.user_agent_hash,
       expires_at,
+      customer_metadata: input.customer_metadata ?? null,
     })
     .returning({
       intake_id: intake_sessions.intake_id,
@@ -85,6 +95,10 @@ export async function create_intake(
 /**
  * Look up a stored intake by id. Returns null if the row is missing or
  * expired. Callers should treat null as "404, redirect to intake form".
+ *
+ * The customer_metadata JSONB is parsed via validate_customer_metadata on
+ * read. If parsing fails (corrupt data), we log and return
+ * customer_metadata: undefined rather than crashing the lookup.
  */
 export async function get_intake(
   intake_id: number,
@@ -97,6 +111,7 @@ export async function get_intake(
     .select({
       goals: intake_sessions.goals,
       expires_at: intake_sessions.expires_at,
+      customer_metadata: intake_sessions.customer_metadata,
     })
     .from(intake_sessions)
     .where(eq(intake_sessions.intake_id, intake_id))
@@ -110,10 +125,23 @@ export async function get_intake(
     return null;
   }
 
+  // Parse customer_metadata safely — corrupt JSONB must not crash the lookup.
+  let customer_metadata: CustomerMetadata | undefined;
+  try {
+    customer_metadata = validate_customer_metadata(row.customer_metadata);
+  } catch (err) {
+    console.error(
+      `get_intake(${intake_id}): corrupt customer_metadata, returning undefined`,
+      err,
+    );
+    customer_metadata = undefined;
+  }
+
   // The jsonb column round-trips as the same Goal[] shape we inserted.
   return {
     goals: row.goals as Goal[],
     expires_at,
+    customer_metadata,
   };
 }
 
@@ -137,6 +165,7 @@ export async function _insert_intake_with_expiry(
       // consistent (captured_at < expires_at = "old expired session").
       captured_at: new Date(input.expires_at.getTime() - SEVEN_DAYS_MS),
       expires_at: input.expires_at,
+      customer_metadata: input.customer_metadata ?? null,
     })
     .returning({ intake_id: intake_sessions.intake_id });
   return Number(inserted[0].intake_id);

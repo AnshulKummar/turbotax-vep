@@ -589,3 +589,6 @@ export interface AuditTrailResponse {
  * and refuse to run against an unexpected version.
  */
 export const CONTRACT_VERSION = "1.0.0";
+
+// Re-export Sprint 3 customer metadata contract
+export type { CustomerMetadata } from "./customer-metadata";

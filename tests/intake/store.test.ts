@@ -1,13 +1,16 @@
 /**
- * T-703 — intake_sessions store unit tests.
+ * T-703 + Sprint 3 T-E05 — intake_sessions store unit tests.
  *
  * The DB lifecycle (fresh pglite per test) is owned by tests/audit/setup.ts,
  * registered globally via vitest.config.ts. Each test sees an empty
  * intake_sessions table.
  */
 
+import { sql } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
+import { get_db } from "@/lib/audit/db";
+import { intake_sessions } from "@/lib/audit/schema";
 import { validate_intake } from "@/lib/goals/intake";
 import {
   _count_intake_rows,
@@ -15,6 +18,8 @@ import {
   create_intake,
   get_intake,
 } from "@/lib/intake/store";
+
+import type { CustomerMetadata } from "@/lib/intake/metadata";
 
 const sample_goals = validate_intake([
   { id: "maximize_refund", rank: 1, weight: 5 },
@@ -90,5 +95,57 @@ describe("create_intake / get_intake round-trip", () => {
     await expect(
       create_intake({ ...sample_input, goals: [] }),
     ).rejects.toThrow(/goals/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sprint 3 — customer_metadata round-trip tests (T-E05)
+// ---------------------------------------------------------------------------
+
+describe("create_intake / get_intake with customer_metadata", () => {
+  const full_metadata: CustomerMetadata = {
+    display_name: "Jane Mitchell (synthetic)",
+    filing_status: "mfj",
+    agi_band: "100_250k",
+    document_ids: ["w2-acme", "1098"],
+  };
+
+  it("happy path: stores and retrieves customer_metadata", async () => {
+    const created = await create_intake({
+      ...sample_input,
+      customer_metadata: full_metadata,
+    });
+
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.customer_metadata).toEqual(full_metadata);
+  });
+
+  it("backward compat: create_intake without customer_metadata returns undefined on get", async () => {
+    const created = await create_intake(sample_input);
+
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.customer_metadata).toBeUndefined();
+  });
+
+  it("corrupt JSONB: returns customer_metadata undefined without throwing", async () => {
+    // Insert a row, then manually corrupt the customer_metadata column.
+    const created = await create_intake({
+      ...sample_input,
+      customer_metadata: full_metadata,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = get_db() as any;
+    // Write an object that won't validate (invalid filing_status).
+    await db.execute(
+      sql`UPDATE intake_sessions SET customer_metadata = '{"filing_status": "INVALID_VALUE"}'::jsonb WHERE intake_id = ${created.intake_id}`,
+    );
+
+    // get_intake should NOT throw — it logs and returns undefined.
+    const fetched = await get_intake(created.intake_id);
+    expect(fetched).not.toBeNull();
+    expect(fetched!.customer_metadata).toBeUndefined();
   });
 });
