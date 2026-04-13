@@ -6,24 +6,39 @@ An independent product review and working prototype of a redesigned **TurboTax V
 
 ## Try the demo
 
-The prototype now delivers the full **customer-to-expert journey** for Big Bet B1. A visitor plays the role of a TurboTax customer: enters a synthetic name, picks a filing status and AGI band, selects tax documents from a card grid, then chooses three prioritized goals. After a branded handoff transition, the visitor arrives at a redesigned expert workbench with left-hand navigation and six sections (Brief, Goals, Documents, Pre-work, Recommendations, Audit). The recommendation engine re-ranks expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations.
+The prototype delivers the full **customer-to-expert journey** for Big Bet B1. A visitor plays the role of a TurboTax customer: enters a synthetic name, picks a filing status and AGI band, selects tax documents from a card grid, then chooses three prioritized goals. After a branded handoff transition, the visitor arrives at a redesigned expert workbench with left-hand navigation and six sections (Brief, Goals, Documents, Pre-work, Recommendations, Audit). The recommendation engine re-ranks expert findings on a synthetic married-filing-jointly return (Olivia & Ryan Mitchell) against the submitted goal mix. Changing the goals demonstrably re-ranks the top five recommendations.
 
 ### Five demo paths
 
-1. **Guided tour:** [`/tour`](https://turbotax-vep.vercel.app/tour) — self-running narrated walkthrough of the full demo script with auto-advancing captions, playback controls, and keyboard shortcuts
-2. **Full customer flow:** `/` → `/start` → fill info + pick documents + select goals → `/handoff` → `/workbench?intake=<id>&section=brief` (expert view with customer context)
+1. **Guided tour:** [`/tour`](https://turbotax-vep.vercel.app/tour) — narrated walkthrough of the full demo script with Web Speech API TTS narration, speech-driven advancement, auto-advancing captions, playback controls, and keyboard shortcuts
+2. **Full customer flow:** `/` -> `/start` -> fill info + pick documents + select goals -> `/handoff` -> `/workbench?intake=<id>&section=brief` (expert view with customer context)
 3. **Quick expert view:** `/workbench` — loads with default Mitchell goals, skips the customer flow entirely
 4. **Customer review:** `/review?intake=<id>` — customer approves or declines expert-shared recommendations
 5. **Legacy intake:** `/intake` — Sprint 2 style goal-only form, still works and redirects to the workbench
 
-The app serves 13 routes. Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
+The app serves **16 routes** (13 app routes). Everything is synthetic data, there is no auth, and the marginal cost per visitor is **$0** (cassette replay + local goal-fit scorer; no live LLM calls in the public hot path).
+
+The "Read the PRD" link on the landing page points to this GitHub repo.
 
 ### Sprint 4: Recommendation approval flow
 
-- **27 recommendations** segmented into High, Medium, and Low priority tiers based on severity, goal-fit, and dollar impact
-- **App cues** on all 6 workbench sections explaining what each demonstrates for demo viewers (dismissible)
-- **Two-way recommendation loop:** expert selects recommendations to share → customer reviews at `/review?intake=<id>` with approve/decline toggles → expert sees approval status badges on each card
+- **27 tiered recommendations** segmented into High, Medium, and Low priority tiers based on severity, goal-fit, and dollar impact
+- **App cues** on all 6 workbench sections with tinted background, ring styling, and diamond icon explaining what each demonstrates for demo viewers (dismissible)
+- **Two-way customer approval flow:** expert selects recommendations to share -> customer reviews at `/review?intake=<id>` with approve/decline toggles -> expert sees approval status badges on each card
 - **Tier filter tabs** (All/High/Medium/Low) with counts on the Recommendations section
+
+### Pre-work: Confidence % and Quality Co-pilot
+
+- **Confidence %** per pre-populated line combines three signals: OCR certainty, cross-document corroboration, and year-over-year consistency. Click any score to see the breakdown.
+- **Real-time Quality Co-pilot** flags inconsistencies as the expert edits, surfacing rule citations and dollar impact inline.
+
+### Success metrics dashboard
+
+`/metrics` — dashboard tracking 8 KPIs: Goal dashboard coverage, Recommendation list completeness, Expert minutes on return, Confidence calibration, PII leakage, Routing rationale dimensions, Audit trail capture rate, Cases auto-closed without warning.
+
+### Guided tour
+
+`/tour` — self-running narrated walkthrough using the Web Speech API for TTS narration. Supports speech-driven advancement, playback controls (play/pause/skip), and full keyboard shortcuts.
 
 Read more:
 
@@ -61,12 +76,17 @@ The MVP demonstrates Layer 3 end-to-end against a synthetic married-filing-joint
 
 ## Tech stack
 
-- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript (strict)
-- **UI**: Tailwind 4 (dark theme only)
-- **AI**: Anthropic Claude (`claude-sonnet-4-6`) via the official Anthropic SDK
-- **Storage**: Neon Postgres via Drizzle ORM (HTTP driver, serverless-compatible); in-process pglite for local tests
-- **Tests**: Vitest + integration tests against the synthetic return
-- **Data**: 100% synthetic, zero real PII
+| Layer | Choice | Scalability |
+|---|---|---|
+| Framework | Next.js 16 (App Router) + React 19 | Vercel serverless — scales to zero, auto-scales on traffic spikes. Edge-compatible route handlers. |
+| Language | TypeScript (strict mode) | Type-safe contracts across all layers prevent integration drift at scale. |
+| UI | Tailwind 4 (dark theme only) | Atomic CSS — zero runtime overhead, constant bundle size regardless of component count. |
+| AI | Anthropic Claude (claude-sonnet-4-6) | Cassette replay pattern: $0 marginal cost in demo mode. Production: horizontal scaling via stateless API calls with per-request token budgets. |
+| Database | Neon PostgreSQL via Drizzle ORM (HTTP driver) | Serverless Postgres — connection pooling, branching for preview deploys, auto-scaling compute. Handles 10K+ concurrent connections. |
+| Validation | Zod v4 (`zod/v4`) | Single source of truth for API contracts — compile-time + runtime validation at every boundary. |
+| Tests | Vitest (447 tests, 64 files) | Sub-second unit tests, integration tests against synthetic returns, CI-compatible. |
+| Deployment | Vercel (serverless) | Global CDN, automatic preview deploys per PR, instant rollbacks. Production at paireval.com pattern. |
+| Data | 100% synthetic, zero real PII | Eliminates compliance overhead for the prototype. Production: PII redaction pipeline (Layer 4) handles real data. |
 
 ## Running the prototype
 

@@ -183,7 +183,9 @@ The MVP demonstrates **Big Bet B1 (Goal Aligned Recommendation System)** end to 
 
 **What is not in the MVP:** real OCR (synthetic return is hand crafted), real routing engine, multi expert collaboration, customer facing surfaces, real Stripe billing, real authentication, Phase 2 IRS notice and audit workflow, full B2 connected accounts and year round simulation, and the full B4 training pipeline (labeled capture is live, model fine tune cadence is described).
 
-**Tech stack:** Next.js 16 + React 19 + TypeScript + Tailwind 4 dark theme + Anthropic Claude (claude-sonnet-4-6) + better-sqlite3 + Vitest. Synthetic data only with no real PII.
+**Tech stack:** Next.js 16 + React 19 + TypeScript + Tailwind 4 dark theme + Anthropic Claude (claude-sonnet-4-6) + Neon PostgreSQL via Drizzle ORM (HTTP driver, serverless-compatible) + Vitest. Synthetic data only with no real PII.
+
+**Scalability note:** Every component is chosen for serverless-first deployment. The architecture scales horizontally with zero configuration changes — Vercel auto-scales the compute, Neon auto-scales the database, and the cassette pattern eliminates LLM cost in the demo path.
 
 ## 8. Success Metrics (Aligned to MVP)
 
@@ -241,9 +243,9 @@ turbotax-vep/
 ├── tasks/                               Per-agent task briefs (6 files)
 ├── src/                                 Populated by the multi-agent build
 ├── app/                                 Next.js app router
+│   └── tour/                            Guided tour with TTS narration
 ├── components/
-├── tests/
-└── public/
+└── tests/
 ```
 
 ## 11. Architecture Decision Records
@@ -255,7 +257,7 @@ The eight ADRs that pin the build live in `docs/architecture/decisions/`:
 | ADR-001 | Tech stack |
 | ADR-002 | Synthetic only data |
 | ADR-003 | Deterministic rules as safety net |
-| ADR-004 | SQLite for audit trail |
+| ADR-004 | Serverless Postgres for audit trail |
 | ADR-005 | Goal taxonomy |
 | ADR-006 | PII redaction strategy |
 | ADR-007 | Confidence calibration |

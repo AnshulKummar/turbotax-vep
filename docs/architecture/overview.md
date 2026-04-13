@@ -72,9 +72,10 @@ These contracts are the only shared surface between agents. Agents do not import
 | UI | React 19 + Tailwind 4 (dark theme) | Matches the parent PairEval Next stack for build velocity |
 | Language | TypeScript strict mode | Required by the cross-layer contract approach |
 | LLM | Anthropic Claude `claude-sonnet-4-6` | Best calibration on long-context tax reasoning |
-| Storage | better-sqlite3 (local file) | Zero ops; production would use Postgres on Neon |
+| Storage | Neon PostgreSQL via Drizzle ORM (HTTP driver) | Serverless-compatible, auto-scaling, branching for preview deploys. Handles 10K+ concurrent connections. |
 | Validation | Zod v4 (`zod/v4`) | Single source of truth for contracts and runtime validation |
 | Tests | Vitest | Matches PairEval Next; fast |
 | Calibration eval | Custom harness on a 50-return synthetic test set | See ADR-007 |
+| Scalability | Serverless-first on Vercel | Scales to zero, auto-scales on spikes. Global CDN. $0 at rest. |
 
 See `docs/architecture/decisions/` for the eight ADRs that explain why.

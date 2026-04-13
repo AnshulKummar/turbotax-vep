@@ -1,0 +1,41 @@
+# Expert-Side Themes --- Full Table
+
+> This table expands on the three expert pain points identified in PRD Section 5, adding four additional themes surfaced from Glassdoor, Indeed, TurboTax community forum posts by self-identified experts, and structural inferences from the Intuit recruitment FAQ. Themes 1--3 match the PRD exactly. Themes 4--7 are additional findings that inform the workbench design and the broader platform strategy.
+
+## Expert Pain Point Table
+
+| # | Pain point | Severity | Customer themes it causes | Public evidence | Platform layer affected | Proposed fix |
+|---|---|---|---|---|---|---|
+| 1 | No return surface, no anomaly flags, no prior year side-by-side, no risk register. The tooling is a knowledge base search box. | 5 | 1, 4 | Intuit recruitment FAQ describes tooling as "TurboTax knowledge base, IRS resources, and a popular tax library" | Layer 3 (Workbench) | B3 pre-work engine populates return surface with confidence scores; risk register surfaces anomalies; prior year side-by-side built into workbench |
+| 2 | Routing is a queue. No specialty, complexity, jurisdiction, language, or continuity matching. | 5 | 3, 4, 5 | Intuit recruitment FAQ: "TurboTax customer contacts are in a queue and they are routed to the next available Tax Expert" | Layer 2 (Routing) | B5 specialty match routing with complexity scoring, jurisdiction matching, and continuity preference |
+| 3 | Performance is graded on customer surveys and a 23-minute AHT. Accuracy is not measured. AI assistance, where it exists, is unreliable. | 5 | 1, 2 | Intuit recruitment FAQ on metrics; Washington Post test on Intuit Assist accuracy | Layer 4 (Trust & Learning) | Composite performance metric (I3) weighting accuracy, AI edit signal quality, NPS, and complexity-adjusted AHT; "told customer no" tracking |
+| 4 | No visibility into customer's prior year return or preparer notes | 4 | 4 | Inferred from recruitment FAQ (no mention of prior year access); corroborated by customer reports of experts "starting from scratch" each year | Layer 3 (Workbench) | Customer context header (I1) showing prior expert notes, prior year return, and prior year preparer name; B2 multi-year co-pilot maintains full longitudinal context |
+| 5 | AI tools (Intuit Assist) are unreliable --- experts report having to double-check AI suggestions and sometimes correcting AI-generated errors | 4 | 1 | Washington Post test found Intuit Assist wrong on more than half of 16 tax questions; Futurism reporting on AI accuracy concerns; expert-side Glassdoor reviews describing AI tools as "more work than help" | Layer 1 (Pre-Work) + Layer 4 (Trust) | B3 deterministic rules engine as safety net (not AI as primary); confidence calibration (ADR-007) so experts know when to trust and when to verify; "what AI saw" transparency panel |
+| 6 | Seasonal ramp-up with minimal onboarding --- new experts thrown into complex cases within days of starting | 4 | 1, 3 | Indeed reviews from seasonal tax experts describing 1--2 week onboarding before handling live cases; Glassdoor reviews noting "training does not prepare you for the complexity of real cases"; Intuit recruitment FAQ listing training as "virtual, self-paced" | Layer 2 (Routing) + Layer 3 (Workbench) | B5 routing engine enforces complexity caps for new experts (graduated complexity ramp); workbench live quality co-pilot (I1) provides real-time guardrails; peer reviewer requirement for high-complexity returns assigned to sub-threshold experts |
+| 7 | No career path or specialty recognition --- all experts treated as interchangeable regardless of experience, credentials, or demonstrated accuracy | 3 | 3 | Inferred from queue-based routing model (no specialty matching implies no specialty tracking); Indeed reviews describing "no advancement opportunity" and "same cases whether you have 1 year or 15 years of experience"; recruitment FAQ makes no mention of specialization tracks | Layer 2 (Routing) + Layer 4 (Trust) | B5 competency profiles with expert-owned specialty declarations and admin validation; B4 learning loop measures individual expert accuracy over time; reputation dashboard shows complexity-adjusted accuracy, specialty depth, and customer continuity rate |
+
+## Theme Details
+
+### Theme 4: No Visibility into Prior Year Context
+
+Experts are assigned a customer case with no access to what happened last year. They cannot see the prior year return, the prior expert's notes, the recommendations that were made, or the customer's filing history. This forces the expert to reconstruct the customer's situation from scratch every year, which is both inefficient (adds 5--10 minutes per case for complex returns) and error-prone (the expert may miss context-dependent items like depreciation schedules, carryforward amounts, or multi-year planning strategies).
+
+The proposed platform addresses this at two levels. The immediate fix (I1) is a customer context header on the workbench that surfaces prior year data. The structural fix (B2) is the multi-year co-pilot, which maintains a persistent, queryable record of the customer's financial context, goals, and expert interactions across tax years.
+
+### Theme 5: Unreliable AI Assistance
+
+Experts describe a catch-22 with current AI tooling. When AI suggestions are wrong (which the Washington Post test suggests happens frequently), the expert must spend time identifying and correcting the error --- sometimes more time than doing the work manually. When AI suggestions are right, the expert still feels compelled to verify because they cannot assess the AI's confidence level. The net effect is that AI assistance in its current form adds cognitive load rather than reducing it.
+
+The proposed platform addresses this through two architectural decisions. First, the deterministic rules engine (B3, ADR-003) serves as the primary safety net, with the LLM used for ranking and explanation rather than for the initial tax determination. Second, the confidence calibration layer (ADR-007) gives each pre-populated line a calibrated confidence score, so experts can triage their attention: high-confidence lines get a quick scan, low-confidence lines get full manual review.
+
+### Theme 6: Seasonal Ramp-Up Gap
+
+Intuit scales from a base of permanent experts to 13,000+ during peak season. Seasonal experts receive virtual, self-paced training that --- per public employee reviews --- does not adequately prepare them for the range and complexity of cases they encounter. The result is that under-prepared experts are assigned complex returns during the highest-volume period of the year, which is precisely when errors are most costly and hardest to remediate.
+
+The proposed platform addresses this through graduated complexity routing (B5), which enforces a maximum complexity score for experts below a confidence threshold. New experts start with lower-complexity returns and graduate upward as their accuracy metrics (measured by the B4 learning loop) demonstrate readiness. The live quality co-pilot (I1) provides an additional safety net by flagging potential errors in real time, giving new experts a "second pair of eyes" without requiring a senior expert to sit alongside them.
+
+### Theme 7: No Career Path or Specialty Recognition
+
+Experts who develop deep expertise in specific domains (RSU and equity compensation, K-1 partnerships, expatriate returns, real estate) receive no formal recognition and no routing preference for the cases they are best equipped to handle. A 15-year veteran with CPA credentials and deep K-1 experience is routed the same way as a first-season generalist. This creates two problems: it wastes specialist capacity on simple returns, and it demotivates experts who want to build a career rather than process a queue.
+
+The proposed platform addresses this through competency profiles (B5) and the reputation dashboard. Experts can declare specialties, which are validated by admin review and, over time, by accuracy metrics from the B4 learning loop. The routing engine uses these profiles to match specialists to complex cases, and the reputation dashboard gives experts visibility into their own performance trajectory --- including metrics they can use in career development conversations.
