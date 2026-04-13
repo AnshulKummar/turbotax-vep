@@ -109,8 +109,8 @@ export const TOUR_STEPS: TourStep[] = [
     act: "Act 3 — The Demo",
     actColor: "cyan",
     title: "Expert Workbench: AI Pre-Work",
-    body: "This section shows the work the AI has already done before the expert opens the return. The pre-work engine has populated every line with values from source documents, each carrying a confidence score. It has flagged year-over-year changes — for example, RSU income up forty-two thousand from a new vest tranche. It has scored the return's complexity at eight out of ten. And it has built a risk register ranking the most critical issues by severity and dollar impact. All of this saves the expert from spending the first ten minutes of every case just figuring out what they're looking at. The expert opens the case already knowing where the problems are.",
-    duration: 22,
+    body: "This section shows the work the AI has already done before the expert opens the return. The pre-work engine has populated every line with values from source documents. Notice the confidence percentage on each row — that's a weighted score combining OCR extraction certainty, cross-document corroboration like matching W-2 Box 1 against 1099-B totals, and year-over-year consistency with the prior return. Green bars at ninety percent or above mean high confidence from multiple sources. Amber flags single-source values. Red means a conflict the expert should verify. On the right side, you'll see the Quality Co-pilot — it watches every edit in real time. The moment the expert changes a line, it cross-checks against related fields and flashes a warning if the edit creates an inconsistency. Below that, the risk register ranks the most critical issues by severity and dollar impact. The expert opens the case already knowing where the problems are and how confident the system is about each value.",
+    duration: 26,
   },
   {
     path: "/workbench?section=recommendations",
