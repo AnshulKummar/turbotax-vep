@@ -94,6 +94,17 @@ The big bets share one thesis: **the Virtual Expert Platform should optimize for
 
 **What is built.** A capture layer on every workbench interaction, a labeling pipeline that converts those interactions to training examples, a model evaluation harness with a golden test set of synthetic returns, a calibration monitoring dashboard, and a quarterly model release cadence.
 
+**Moat compounding timeline:**
+
+| Season | Labeled decisions | Expected accuracy lift | Moat status |
+|---|---|---|---|
+| Season 1 (TY2026) | ~500K labels (13,000 experts × ~40 returns × ~1 action per rec) | Baseline established. No fine tuning yet — capture only. | No moat. Data collection phase. |
+| Season 2 (TY2027) | ~1.5M cumulative | 5–8% accuracy improvement on recommendation ranking. First fine tuned model deployed. Confidence calibration tightens by 2–3 points. | Early moat. Competitors would need 1 season + 13K experts to replicate. |
+| Season 3 (TY2028) | ~3.5M cumulative | 10–15% cumulative accuracy improvement. Goal fit scoring becomes expert-validated. Risk register prioritization reflects real expert judgment. | Defensible moat. No competitor can replicate without 3 seasons of credentialed expert workflow data. |
+| Season 5+ (TY2030) | ~10M cumulative | Compounding returns flatten but breadth increases — model covers edge cases (NRA spouse, cross-border, trust returns) that no training set can synthesize. | Structural moat. The dataset is proprietary, growing, and impossible to recreate from public data. |
+
+The minimum viable moat is Season 2: one fine tuned model that measurably outperforms the base model on recommendation ranking. The investment required to reach Season 2 is the capture layer (shipped in B4 MVP) plus one model fine tuning cycle.
+
 **Customer frictions this addresses.** Theme 1 over time. Also addresses Expert Pain Point 3 by making accuracy measurable.
 
 ## B5. Specialty Match Routing Marketplace
@@ -153,7 +164,46 @@ These are the prioritized friction fixes that do not require a change in operati
 
 ---
 
-## 6. Solution Architecture
+## 6. Financial Model
+
+### Cost of inaction
+
+TurboTax Live generated $2.0B in FY2025 revenue. The customer trust gap is the single largest threat to sustained growth.
+
+| Risk vector | Estimate | Basis |
+|---|---|---|
+| Churn from accuracy errors (theme 1) | $100M–$200M annual revenue at risk | 18% of complaints cite accuracy errors. If 5–10% of Live customers who encounter an error churn, that is 5–10% of $2.0B. |
+| Churn from communication breakdown / auto closure (theme 2) | $80M–$160M annual revenue at risk | 20% of complaints. Auto closure before deadline is the single most emotionally charged failure mode. |
+| Misrouted complex returns (theme 3) | $30M–$60M in remediation + refund cost | Generalist errors on complex returns generate IRS notices, amended returns, and escalation labor. At 6% frequency across ~2M Live returns, even a $250 average remediation cost reaches $30M. |
+| Competitive displacement | Unquantified but structural | H&R Block, independent CPAs, and emerging AI tax tools (ChatGPT tax plugins, standalone AI preparers) all benefit from every negative TurboTax Live review. The 1.2 Trustpilot score is a public acquisition barrier. |
+
+**Conservative total cost of inaction: $200M–$400M in annual revenue at risk**, before accounting for brand damage and competitive displacement.
+
+### Revenue impact per bet
+
+| Bet | Primary revenue lever | Estimated annual impact (steady state, Year 2+) | Confidence |
+|---|---|---|---|
+| B1 — Goal Aligned Recommendations | Retention lift from goal fulfillment. Customers whose stated goals are addressed show higher NPS and lower churn. Secondary: upsell to Full Service from Live Assisted when goal complexity exceeds self-serve threshold. | $80M–$150M (2–4 point retention lift on $2.0B base + conversion uplift) | Medium — requires A/B validation in production pilot |
+| B2 — Multi Year Tax Co Pilot | TAM expansion from "filers" to "optimizers." Year-round subscription revenue. | $200M–$500M (new TAM, 3–5 year horizon) | Low — dependent on B1 proving the goal-aligned model works |
+| B3 — Autonomous Pre Work | Expert throughput increase. Each expert handles more returns per day at constant or better quality, reducing seasonal hiring cost. | $40M–$80M (15–20% throughput lift across 13,000 experts × cost per expert) | High — directly measurable in shadow mode |
+| B4 — Expert as Trainer | Compounding accuracy improvement reduces remediation cost, IRS notice rate, and escalation volume. | $20M Year 1 → $60M+ Year 3 (scales with labeled data volume) | Medium — requires 2+ seasons to validate compounding |
+| B5 — Specialty Match Routing | Reduction in misrouted complex returns. Direct savings on remediation, amended returns, and escalation labor. | $30M–$60M (eliminates the misrouting cost vector above) | High — routing logic is deterministic and testable |
+
+### Build cost estimate (T-shirt sizing)
+
+| Bet | Team (PM + Eng + Design) | MVP duration | Full rollout | Estimated annual cost |
+|---|---|---|---|---|
+| B1 | 1 Sr PM + 4 Eng + 1 Design | 1 quarter | 2 quarters | $2M–$3M |
+| B2 | 1 Sr PM + 6 Eng + 1 Design + 1 Data | 2 quarters | 4 quarters | $4M–$6M |
+| B3 | 1 PM + 5 Eng + 1 ML | 1 quarter | 2 quarters | $3M–$4M |
+| B4 | 1 PM + 3 Eng + 1 ML | 1 quarter (capture layer) | Ongoing | $2M–$3M |
+| B5 | 1 PM + 3 Eng | 1 quarter | 2 quarters | $1.5M–$2.5M |
+
+**Total Year 1 investment for B1 + B3 + B5 (highest confidence bets): $6.5M–$9.5M against $150M–$290M in estimated revenue impact.** ROI: 15–30x.
+
+---
+
+## 7. Solution Architecture
 
 The solution is a four layer Virtual Expert Platform that hosts both the big bets and the incremental fixes.
 
@@ -164,7 +214,7 @@ The solution is a four layer Virtual Expert Platform that hosts both the big bet
 
 **Non goals:** fixing the checkout funnel auto upgrade dark pattern (separate org), replacing the underlying tax calculation engine, building net new tax content (the existing 100,000 page Intuit tax knowledge engine is reused), and IRS notice and audit defense workflow (Phase 2).
 
-## 7. MVP Prototype Scope
+## 8. MVP Prototype Scope
 
 The MVP demonstrates **Big Bet B1 (Goal Aligned Recommendation System)** end to end on the Layer 3 Workbench, against a single realistic synthetic Form 1040 (the "Olivia and Ryan Mitchell" return: married filing jointly, AGI ~$326K, residential rental, RSU vesting, K-1, HSA, mixed wash sale lots, 1098, multi state IL+CA, prior year return on file). Layer 1 pre work output is mocked as if a real OCR plus rules engine had produced it. Layer 2 routing is mocked as a single routing rationale chip. Layer 4 trust is partially live: PII redaction runs against the synthetic data, the audit trail is fully captured, the "what AI saw" panel renders.
 
@@ -181,26 +231,61 @@ The MVP demonstrates **Big Bet B1 (Goal Aligned Recommendation System)** end to 
 9. Audit trail timeline of every AI suggestion and expert action, queryable.
 10. Expert minutes counter ticking against the legacy and TY2025 baselines.
 
-**What is not in the MVP:** real OCR (synthetic return is hand crafted), real routing engine, multi expert collaboration, customer facing surfaces, real Stripe billing, real authentication, Phase 2 IRS notice and audit workflow, full B2 connected accounts and year round simulation, and the full B4 training pipeline (labeled capture is live, model fine tune cadence is described).
+**Strategically deferred (and why):**
+
+| Deferral | Rationale |
+|---|---|
+| Real routing engine (B5) | Requires the complexity scoring pipeline from B3 and expert competency profiles. Ship B1 first, prove goal alignment works, then layer routing on top. |
+| Full B2 connected accounts and year round simulation | Largest engineering investment. Requires B1 retention data to justify the TAM expansion thesis. Deferred to Year 2. |
+| Full B4 training pipeline (model fine tune cadence) | Labeled capture is live in the prototype. The fine tuning loop requires 1+ season of production data. Season 1 is capture only; fine tuning begins Season 2. |
+| Multi expert collaboration | Low-frequency use case in the current Live model. Becomes relevant only after B5 routing introduces peer review workflows. |
+| IRS notice and audit defense workflow | Phase 2 feature. Depends on post-filing outcome data that takes 6–12 months to accumulate after B1 ships. |
+
+**Production table stakes (required before pilot):**
+
+| Requirement | Effort | When |
+|---|---|---|
+| Real authentication (SSO via Intuit Identity) | S | Pre-pilot gate |
+| Real OCR / document ingestion (replace synthetic return) | M | Pre-pilot gate (can use existing Intuit OCR pipeline) |
+| Billing integration (Stripe or internal billing service) | S | Pre-GA gate |
+| HIPAA / SOX compliance review | M | Pre-pilot gate |
+| Load testing at 1,000+ concurrent experts | S | Pre-GA gate |
 
 **Tech stack:** Next.js 16 + React 19 + TypeScript + Tailwind 4 dark theme + Anthropic Claude (claude-sonnet-4-6) + Neon PostgreSQL via Drizzle ORM (HTTP driver, serverless-compatible) + Vitest. Synthetic data only with no real PII.
 
 **Scalability note:** Every component is chosen for serverless-first deployment. The architecture scales horizontally with zero configuration changes — Vercel auto-scales the compute, Neon auto-scales the database, and the cassette pattern eliminates LLM cost in the demo path.
 
-## 8. Success Metrics (Aligned to MVP)
+## 9. Success Metrics
 
-| MVP demo metric | Target during prototype walk through | Production outcome (full VEP) |
+### Prototype validation metrics
+
+These prove the prototype works and the architecture is sound.
+
+| Metric | Target | Status |
 |---|---|---|
-| Goal dashboard reflects customer's stated goals end to end | Every recommendation in the demo carries a goal fit score and a goal label | Goal fit score becomes the primary expert performance metric, replacing CSAT only |
-| Recommendation list catches every mechanically detectable error in the synthetic return | 5 of 5 errors caught with rule citation and goal mapping | First touch return accuracy improved 25% in TY2026 as measured by post filing IRS notice rate |
-| Expert minutes per return on the synthetic 1040 | Under 10 minutes wall clock vs 25 to 35 minute legacy baseline | 30% additional reduction on top of Intuit's stated TY2025 ~20% baseline |
-| Confidence score calibration on pre populated lines | Calibration curve within 5 points across deciles on a 50 return synthetic test set | Senior experts trust confidence scores enough to use them as a triage signal |
-| PII redaction against the synthetic 1040 | Zero PII leakage in prompts sent to the model | Zero PII leakage in production GenOS prompts, verifiable via audit trail |
-| Routing rationale chip reflects four routing dimensions | Demo chip shows specialty, jurisdiction, prior year continuity, complexity | 80% of complex returns routed to specialty matched expert in TY2026 |
-| Audit trail captures every AI suggestion and expert action | 100% of demo interactions captured and queryable | 100% of AI suggestions auditable end to end in production |
-| Cases auto closed without warning | Escalation panel surfaces case state to expert in real time | Zero auto closures in production |
+| Goal dashboard reflects customer's stated goals end to end | Every recommendation carries a goal fit score and a goal label | Demonstrated in prototype |
+| Recommendation list catches every mechanically detectable error | 5 of 5 errors caught with rule citation and goal mapping | Demonstrated — 27 recommendations, all 13 rule categories |
+| Expert minutes on the synthetic 1040 | Under 10 minutes wall clock vs 25–35 min legacy baseline | Demonstrated in prototype walkthrough |
+| Confidence score calibration | Calibration curve within 5 points across deciles on 50 return synthetic test set | Demonstrated — calibration eval passes |
+| PII redaction | Zero PII leakage in prompts sent to the model | Demonstrated — redaction pipeline verified |
+| Routing rationale chip | Demo chip shows specialty, jurisdiction, continuity, complexity | Demonstrated — 4 dimensions rendered |
+| Audit trail capture | 100% of demo interactions captured and queryable | Demonstrated — full audit timeline |
+| Cases auto closed without warning | Escalation panel surfaces case state to expert in real time | Demonstrated — escalation panel rendered |
 
-## 9. Build Orchestration
+### Business metrics (production pilot and beyond)
+
+These are the metrics that justify continued investment. Each has a clear measurement methodology and a decision gate.
+
+| Metric | Pilot target (50 experts, 1,000 returns) | GA target (TY2026) | Measurement method |
+|---|---|---|---|
+| **Customer retention lift** | +1 point NPS for goal-aligned returns vs control | +2–4 point retention lift on Live customer base | A/B test: goal-aligned workbench vs current workbench. Measure 90-day retention and NPS. |
+| **Revenue per customer** | 5% higher upsell rate from Live Assisted to Full Service when goals indicate complexity | 10% conversion uplift on goal-flagged customers | Funnel analysis: goal complexity score > threshold → upsell prompt → conversion rate. |
+| **First touch return accuracy** | 15% reduction in IRS notice rate for pilot returns | 25% reduction across all Live returns | Post-filing IRS notice rate comparison: B1 cohort vs historical baseline. Requires 6–12 month lag. |
+| **Expert throughput** | Expert handles 2 additional returns per day with pre-work (B3) | 15–20% throughput improvement across all experts | Returns per expert per day, complexity-adjusted. Control for seasonal volume. |
+| **Goal fulfillment rate** (new metric) | 70% of stated customer goals addressed by accepted recommendations | 85% goal fulfillment across all Live returns | Goal dashboard tracking: goals stated at intake vs recommendations accepted by expert, scored by goal-fit. |
+| **Recommendation acceptance rate** | 60% of AI recommendations accepted or edited (not rejected) | 75% acceptance rate | Expert action on each recommendation: accept / edit / reject. Edit counts as partial acceptance. |
+
+## 10. Build Orchestration
 
 The prototype is built by **six specialized agents running in parallel**, coordinated through the per-agent task briefs in `tasks/` and the Sprint 1 backlog in `backlog/sprint-01.md`. Each agent owns a vertical slice that can be developed and tested independently; integration points are explicit TypeScript interface contracts pinned in `src/contracts/` before the build kicks off.
 
@@ -215,7 +300,7 @@ The prototype is built by **six specialized agents running in parallel**, coordi
 
 After Agent 1 finishes the foundation slice, Agents 2 through 5 build in parallel and Agent 6 integrates as soon as any two slices stabilize.
 
-## 10. Repository Layout
+## 11. Repository Layout
 
 ```
 turbotax-vep/
@@ -248,7 +333,7 @@ turbotax-vep/
 └── tests/
 ```
 
-## 11. Architecture Decision Records
+## 12. Architecture Decision Records
 
 The eight ADRs that pin the build live in `docs/architecture/decisions/`:
 
@@ -263,6 +348,6 @@ The eight ADRs that pin the build live in `docs/architecture/decisions/`:
 | ADR-007 | Confidence calibration |
 | ADR-008 | Multi-agent build orchestration |
 
-## 12. Risks and Open Questions
+## 13. Risks and Open Questions
 
 Full risk register and open questions are in `docs/appendices/risks.md`. Headline risks: AI quality bar (mitigated by deterministic rules safety net), expert resistance to monitoring (mitigated by co-designed metrics), senior expert friction (mitigated by collapsible UI density), competency profile bootstrap (mitigated by self-assessment + admin validation), PII redaction at scale (mitigated by phased entity resolution), CSAT vs accuracy tradeoff (mitigated by composite metric with "told customer no" tracking), and goal capture quality (mitigated by guided taxonomy + AI suggested goals).
