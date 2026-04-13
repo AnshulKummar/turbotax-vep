@@ -240,6 +240,73 @@ function placeholder(title: string): MetricCardData {
 }
 
 // ---------------------------------------------------------------------------
+// Business KPIs (PRD Section 9 — production pilot and beyond)
+// ---------------------------------------------------------------------------
+
+interface BusinessKPIData {
+  title: string;
+  pilotTarget: string;
+  gaTarget: string;
+  measurement: string;
+}
+
+const BUSINESS_KPIS: BusinessKPIData[] = [
+  {
+    title: "Goal fulfillment rate",
+    pilotTarget: "70%",
+    gaTarget: "85%",
+    measurement:
+      "Goals stated at intake vs recommendations accepted by expert, scored by goal-fit. Replaces CSAT + AHT as the primary expert evaluation signal.",
+  },
+  {
+    title: "First touch return accuracy",
+    pilotTarget: "+15%",
+    gaTarget: "+25%",
+    measurement:
+      "Post-filing IRS notice rate reduction. The 50-rule deterministic engine catches mechanical errors before the expert opens the return.",
+  },
+  {
+    title: "Expert throughput",
+    pilotTarget: "+2 returns/day",
+    gaTarget: "+15–20%",
+    measurement:
+      "Returns per expert per day, complexity-adjusted. Pre-work eliminates the discovery phase; expert opens the case already knowing where the problems are.",
+  },
+];
+
+function BusinessKPICard({ data, index }: { data: BusinessKPIData; index: number }): ReactNode {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-950/60 to-slate-900/60 p-6 ring-1 ring-violet-500/30 backdrop-blur-md">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-violet-500/[0.04] via-transparent to-cyan-500/[0.04]" />
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-500/20 text-xs font-bold text-violet-300">
+            {index + 1}
+          </span>
+          <span className="text-xs font-medium uppercase tracking-wider text-violet-300">
+            {data.title}
+          </span>
+        </div>
+        <div className="mt-4 flex items-baseline gap-3">
+          <div>
+            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Pilot</div>
+            <div className="text-2xl font-semibold text-violet-200">{data.pilotTarget}</div>
+          </div>
+          <div className="text-slate-600">&rarr;</div>
+          <div>
+            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">GA (TY2026)</div>
+            <div className="text-2xl font-semibold text-cyan-300">{data.gaTarget}</div>
+          </div>
+        </div>
+        <div className="mt-3 text-xs leading-relaxed text-slate-400">
+          {data.measurement}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Rendering
 // ---------------------------------------------------------------------------
 
@@ -299,7 +366,7 @@ export default async function MetricsPage(): Promise<ReactNode> {
     compute_audit_capture_rate(),
   ]);
 
-  const cards: MetricCardData[] = [
+  const prototype_cards: MetricCardData[] = [
     goal_dashboard,
     completeness,
     minutes,
@@ -317,19 +384,34 @@ export default async function MetricsPage(): Promise<ReactNode> {
           Success Metrics
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
-          Live view of the eight prototype demo metrics pinned in PRD Section
-          8. Data streams from the audit trail and calibration tables; cards
-          that depend on unmerged agent slices render a waiting state.
+          Business KPIs that justify continued investment, backed by prototype
+          validation metrics that prove the architecture works. Aligned to PRD
+          Section 9.
         </p>
       </header>
 
-      <section
-        aria-label="Success metrics"
-        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        {cards.map((card) => (
-          <MetricCard key={card.title} data={card} />
-        ))}
+      {/* Business KPIs — the metrics that matter for investment decisions */}
+      <section aria-label="Business KPIs" className="mb-10">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-violet-300">
+          Business KPIs — Pilot &rarr; GA Targets
+        </h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+          {BUSINESS_KPIS.map((kpi, i) => (
+            <BusinessKPICard key={kpi.title} data={kpi} index={i} />
+          ))}
+        </div>
+      </section>
+
+      {/* Prototype validation metrics */}
+      <section aria-label="Prototype validation metrics">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">
+          Prototype Validation Metrics
+        </h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {prototype_cards.map((card) => (
+            <MetricCard key={card.title} data={card} />
+          ))}
+        </div>
       </section>
     </main>
   );

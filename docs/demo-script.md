@@ -111,16 +111,18 @@ The customer's decisions are persisted and immediately visible to the expert. Ba
 
 ## Act 4 — Success Measurement (1 min)
 
-Three KPIs to measure whether this is working:
+> *Navigate to: `/metrics`*
 
-**1. First-touch return accuracy: +25% improvement**
-Measured by post-filing IRS notice rate. Today, mechanical errors like the RSU double-count slip through because there's no systematic detection layer. The 50-rule deterministic engine catches these before the expert even opens the return. Target: 25% reduction in IRS notices for returns processed through this system in TY2026.
+The success metrics dashboard shows two tiers. At the top, three **business KPIs** — the metrics that justify continued investment. Below, eight **prototype validation metrics** that prove the architecture works.
 
-**2. Expert time per return: 30% additional reduction**
-On top of Intuit's stated ~20% AI-driven reduction in TY2025. The pre-work engine, risk register, and goal-ranked recommendations eliminate the discovery phase. The expert opens the case knowing exactly what to look at and in what order. On the synthetic Mitchell return (MFJ, $326K AGI, RSU + K-1 + rental + wash sales), the prototype demonstrates a <10 minute path versus the 25-35 minute legacy baseline.
+**1. Goal fulfillment rate — the new north-star metric**
+This replaces CSAT + AHT as the primary expert evaluation signal. It tracks what percentage of the customer's stated goals were addressed by the recommendations the expert acted on. Pilot target: 70%. GA target for TY2026: 85%. This metric directly aligns expert incentives with customer outcomes — fixing the structural misalignment the research identified.
 
-**3. Goal-fulfillment rate as the new primary metric**
-Replace CSAT + AHT as the expert evaluation signal. The goal dashboard tracks what percentage of the customer's stated goals were addressed by the recommendations the expert acted on. This metric directly aligns expert incentives with customer outcomes — the structural misalignment the research identified.
+**2. First touch return accuracy: +25% improvement**
+Measured by post-filing IRS notice rate reduction. Today, mechanical errors like the RSU double-count slip through because there's no systematic detection layer. The 50-rule deterministic engine catches these before the expert opens the return. Pilot target: 15% reduction. GA target for TY2026: 25%. Note the 6-12 month lag — which is why the prototype validation metrics below prove the engine works right now.
+
+**3. Expert throughput: +15-20% improvement**
+Returns per expert per day, complexity-adjusted. The pre-work engine, risk register, and goal-ranked recommendations eliminate the discovery phase. Pilot target: 2 additional returns per day. GA target: 15-20% throughput improvement. On the synthetic Mitchell return (MFJ, $326K AGI, RSU + K-1 + rental + wash sales), the prototype demonstrates a <10 minute path versus the 25-35 minute legacy baseline.
 
 ---
 
